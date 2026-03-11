@@ -4,6 +4,9 @@
 import { state, loadProgress } from './modules/state.js';
 import { renderApp } from './modules/renderer.js';
 
+// Expose renderApp globally so audio.js / other modules can call it without circular imports
+window._renderApp = renderApp;
+
 // Import all action handlers (side-effect: registers window.*)
 import './modules/actions.js';
 // Import audio (registers window.playAudio etc.)
@@ -21,12 +24,25 @@ const initApp = () => {
 
   // Register Service Worker
   if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js')
-        .then(r => console.log('SW registered:', r.scope))
-        .catch(e => console.warn('SW error:', e));
-    });
+    navigator.serviceWorker.register('./sw.js')
+      .then(r => console.log('SW registered:', r.scope))
+      .catch(e => console.warn('SW error:', e));
   }
 };
 
-document.addEventListener('DOMContentLoaded', initApp);
+// Wait for COURSE_DATA (set by data.js) to be available before booting.
+// data.js is a classic script so it runs synchronously before DOMContentLoaded,
+// but on some browsers/servers the module can race ahead — poll to be safe.
+const waitForData = () => {
+  if (window.COURSE_DATA && window.COURSE_DATA.length > 0) {
+    initApp();
+  } else {
+    setTimeout(waitForData, 20);
+  }
+};
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', waitForData);
+} else {
+  waitForData();
+}
