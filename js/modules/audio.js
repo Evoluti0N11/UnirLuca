@@ -3,7 +3,9 @@
 
 import { showToast } from './utils.js';
 import { state } from './state.js';
-import { renderApp } from './renderer.js';
+
+// Avoid circular import — renderApp is registered on window by app.js boot
+const renderApp = () => window._renderApp && window._renderApp();
 
 let speechTimeout = null;
 
