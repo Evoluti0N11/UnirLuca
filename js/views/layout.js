@@ -53,7 +53,7 @@ export const renderHeader = () => {
 export const renderBottomNav = () => {
   if (['home', 'theory', 'game', 'result'].includes(state.currentView)) return '';
   return `
-  <nav class="bottom-nav" aria-label="Navigazione principale" role="navigation">
+  <nav class="bottom-nav bottom-nav-el" aria-label="Navigazione principale" role="navigation">
     ${NAV_ITEMS.map(({ view, label }) => `
       <button onclick="window.changeView('${view}')" class="${state.currentView === view ? 'active' : ''}" aria-label="${label}">
         <i data-lucide="${view === 'dashboard' ? 'map' : view === 'explore' ? 'globe' : view === 'library' ? 'book-open' : 'user'}" class="w-5 h-5 mb-0.5"></i>
