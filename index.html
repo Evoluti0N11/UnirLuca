@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía de estudio interactiva — Historia de la Comunicación Social</title>
+<style>
+  :root {
+    --bg-main: #f3f4f6;
+    --surface: #ffffff;
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --text-dark: #111827;
+    --text-muted: #4b5563;
+    --border-light: #e5e7eb;
+    --correct-bg: #dcfce7;
+    --correct-border: #bbf7d0;
+    --correct-text: #166534;
+    --wrong-bg: #fee2e2;
+    --wrong-border: #fecaca;
+    --wrong-text: #991b1b;
+    --radius: 12px;
+    --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body { 
+    font-family: var(--font-sans); 
+    background-color: var(--bg-main); 
+    color: var(--text-dark); 
+    line-height: 1.6; 
+  }
+
+  #app { 
+    max-width: 800px; 
+    margin: 0 auto; 
+    padding: 2rem 1.25rem; 
+  }
+
+  /* Typography */
+  h2.sr-only { text-align: center; margin-bottom: 2rem; font-size: 1.75rem; font-weight: 700; color: var(--text-dark); }
+  .tema-title { font-size: 1.5rem; font-weight: 700; color: var(--text-dark); margin-bottom: 0.5rem; line-height: 1.3;}
+  .tema-sub { font-size: 1rem; color: var(--text-muted); margin-bottom: 2rem; }
+  .section-label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 2rem 0 1rem; display: flex; align-items: center; gap: 8px;}
+  .section-label::after { content: ""; flex: 1; height: 1px; background: var(--border-light); }
+  .exam-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 10px; }
+
+  /* Navigation */
+  .nav { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 8px; 
+    margin-bottom: 2.5rem; 
+    position: sticky; 
+    top: 10px; 
+    background: rgba(243, 244, 246, 0.85); 
+    backdrop-filter: blur(8px); 
+    padding: 10px; 
+    border-radius: var(--radius);
+    z-index: 100;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  }
+  .nav-btn { 
+    font-size: 0.85rem; 
+    padding: 8px 14px; 
+    border: 1px solid var(--border-light); 
+    border-radius: 99px; 
+    background: var(--surface); 
+    color: var(--text-muted); 
+    cursor: pointer; 
+    transition: all 0.2s ease; 
+    font-weight: 500;
+  }
+  .nav-btn:hover { border-color: var(--primary); color: var(--primary); }
+  .nav-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);}
+  .nav-btn.special { background: #111827; color: white; border-color: #111827; }
+  .nav-btn.special:hover { background: #374151; }
+  .nav-btn.special.active { background: var(--primary); border-color: var(--primary); }
+
+  /* Cards */
+  .q-card, .dev-card { 
+    border: 1px solid var(--border-light); 
+    border-radius: var(--radius); 
+    padding: 1.5rem; 
+    margin-bottom: 1rem; 
+    background: var(--surface);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+  }
+  .q-card:hover, .dev-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.05); transform: translateY(-2px); }
+
+  /* Test Questions Layout */
+  .q-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 1rem; }
+  .q-num { font-size: 1rem; font-weight: 700; color: var(--primary); min-width: 24px; }
+  .q-text { font-size: 1.05rem; font-weight: 500; color: var(--text-dark); flex: 1; }
+  .multi-hint { font-size: 0.85rem; color: var(--primary); font-weight: 600; margin-left: 6px; white-space: nowrap; }
+  .tema-tag { font-size: 0.75rem; background: var(--bg-main); padding: 2px 8px; border-radius: 4px; color: var(--text-muted); margin-left: 8px; font-weight: normal; vertical-align: middle;}
+  
+  /* Interactive Options */
+  .options-container { display: flex; flex-direction: column; gap: 8px; margin-left: 36px; }
+  .opt-btn { 
+    text-align: left; 
+    font-size: 0.95rem; 
+    padding: 12px 16px; 
+    border: 1px solid var(--border-light); 
+    border-radius: 8px; 
+    background: var(--surface); 
+    color: var(--text-muted); 
+    cursor: pointer; 
+    transition: all 0.2s ease; 
+    position: relative;
+    overflow: hidden;
+  }
+  .opt-btn:hover:not(:disabled) { background: var(--bg-main); border-color: #d1d5db; color: var(--text-dark); }
+  
+  /* Answer States */
+  .opt-btn.selected { background: #eff6ff; border-color: var(--primary); color: var(--primary); font-weight: 500; }
+  .opt-btn.correct { background: var(--correct-bg); color: var(--correct-text); border-color: var(--correct-border); font-weight: 500; }
+  .opt-btn.wrong { background: var(--wrong-bg); color: var(--wrong-text); border-color: var(--wrong-border); }
+  .opt-btn:disabled { cursor: default; }
+
+  /* Verify Button (Multi-select) */
+  .verify-btn {
+    margin-top: 12px;
+    padding: 8px 16px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s ease, transform 0.1s ease;
+    align-self: flex-start;
+    margin-left: 36px;
+  }
+  .verify-btn:hover { background: var(--primary-hover); transform: translateY(-1px); }
+
+  /* Explanations */
+  .explain { 
+    display: none; 
+    font-size: 0.95rem; 
+    color: var(--text-dark); 
+    background: #f8fafc; 
+    border-left: 4px solid var(--primary); 
+    border-radius: 4px 8px 8px 4px; 
+    padding: 1rem 1.25rem; 
+    margin-top: 1.25rem; 
+    margin-left: 36px;
+    animation: fadeIn 0.4s ease forwards;
+  }
+
+  /* Dev Questions Layout */
+  .dev-q { font-size: 1.05rem; font-weight: 600; color: var(--text-dark); cursor: pointer; display: flex; gap: 12px; align-items: flex-start; }
+  .dev-q:hover { color: var(--primary); }
+  .q-toggle { font-size: 1.2rem; color: var(--text-muted); margin-left: auto; transition: transform 0.3s ease; display: flex; align-items: center;}
+  .q-toggle.open { transform: rotate(180deg); color: var(--primary); }
+  .dev-body { 
+    max-height: 0; 
+    overflow: hidden; 
+    transition: max-height 0.4s ease, margin-top 0.4s ease, padding-top 0.4s ease, opacity 0.3s ease; 
+    opacity: 0;
+  }
+  .dev-body.open { 
+    max-height: 1000px; 
+    margin-top: 1rem; 
+    padding-top: 1rem; 
+    border-top: 1px solid var(--border-light); 
+    opacity: 1;
+  }
+  .dev-body p { margin-bottom: 0.75rem; font-size: 0.95rem; color: var(--text-muted); }
+  .dev-body p:last-child { margin-bottom: 0; }
+  .dev-body strong { color: var(--text-dark); }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 600px) {
+    .options-container, .explain, .verify-btn { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <h2 class="sr-only">Historia de la Comunicación Social</h2>
+  <div class="nav" id="nav"></div>
+  <div id="content"></div>
+</div>
+
+<script>
+const data = [
+  {
+    id:1, title:"El nacimiento de los medios de masas", sub:"La prensa popular",
+    qs:[
+      {q:"¿Cuál es el antecedente tecnológico más importante de la prensa de masas?",opts:["El telégrafo","La imprenta","La radio","La fotografía"],ans:1,exp:"La imprenta de Gutenberg (c. 1450) hizo posible la reproducción masiva de textos. Sin ella, la distribución a gran escala de periódicos sería imposible; cada mejora posterior —rotativa a vapor, linotipia— es una evolución directa de ese invento inicial."},
+      {q:"¿Qué características definían a la prensa de élite del siglo XVIII y principios del XIX?",opts:["Precio muy bajo","Lenguaje literario y recargado","Dependencia de partidos políticos","Venta directa en la calle"],ans:1,exp:"Los periódicos ilustrados y de opinión del XVIII estaba escritos por y para una burguesía culta. Su precio elevado (un chelín en Inglaterra, por ejemplo) y su prosa densa los hacían inaccesibles para el pueblo llano; eran plataformas de debate político-intelectual, no de noticias cotidianas."},
+      {q:"¿Qué factor social fue decisivo para la aparición de la prensa de masas?",opts:["La expansión del teatro","Las grandes concentraciones urbanas","La aparición del cine","La reducción de la jornada laboral"],ans:1,exp:"La industrialización reunió millones de personas en ciudades. Esa masa urbana necesitaba información local, anuncios de empleo y entretenimiento barato. Sin esa concentración demográfica, no habría existido ni el mercado ni la logística de distribución necesarios para la prensa de masas."},
+      {q:"¿Qué innovación técnica permitió abaratar la producción de periódicos?",opts:["La rotativa eléctrica","La aplicación de la máquina de vapor a la imprenta","La fotografía","La linotipia"],ans:1,exp:"En 1814, The Times de Londres instaló la primera rotativa de vapor de König y Bauer, que multiplicó por diez la velocidad de impresión. El coste por ejemplar se desplomó, haciendo viable el precio de un penique."},
+      {q:"¿Qué periódico se considera el primer penny paper?",opts:["The Herald","The Sun","The Times","The Penny Magazine"],ans:1,exp:"Benjamin Day fundó The New York Sun en 1833 y lo vendió por un centavo (penny). Fue el primer diario que demostró que la publicidad podía sostener un periódico barato de masas, rompiendo el modelo de suscripción caro previo."},
+      {q:"¿Cuál era el lema de The Sun?",opts:["Truth above all","It shines for all","News for everyone","The people's paper"],ans:1,exp:"'It shines for all' resume perfectamente la filosofía igualitaria del penny paper: información para todos, sin distinción de clase. El lema era también un contrapunto directo a la prensa de élite, que solo 'iluminaba' a los poderosos."},
+      {q:"¿Qué modelo de negocio introdujo Benjamin Day?",opts:["Suscripción obligatoria","Venta directa y dependencia de la publicidad","Financiación estatal","Pago por contenidos premium"],ans:1,exp:"Day invirtió la lógica anterior: en vez de cobrar al lector, subvencionó el precio con ingresos publicitarios. Cuantos más lectores, más valiosos los anuncios. Este modelo simbiótico prensa-publicidad sigue vigente hoy en la prensa digital."},
+      {q:"¿Qué rasgo definía el contenido de The Sun?",opts:["Crónicas parlamentarias","Temas cercanos, sucesos y vida cotidiana","Ensayos literarios","Opinión doctrinal"],ans:1,exp:"The Sun publicó crónicas de crímenes, noticias de vecindario, resultados de boxeo y anuncios de negocios locales. Esta proximidad emocional con el lector fue la clave de su éxito frente a la prensa política abstracta."},
+      {q:"¿Qué innovación introdujo la figura del vendedor de periódicos?",opts:["La suscripción anual","La venta por ejemplar en la calle","La distribución por correo","La venta en quioscos exclusivos"],ans:1,exp:"Los 'newsboys' vendían en esquinas y estaciones de tren. La venta al número (sin suscripción previa) democratizó el acceso y creó el hábito de compra impulsiva, algo imposible con el modelo de suscripción anual previo."},
+      {q:"¿Qué factor político favoreció el interés popular por la actualidad?",opts:["La guerra civil estadounidense","El auge del constitucionalismo y el sufragio universal masculino","La aparición de la radio","La expansión del ferrocarril"],ans:1,exp:"Cuando los hombres obtuvieron el voto (en distintas fechas según el país), la política dejó de ser asunto de élites. El ciudadano-elector necesitaba información para tomar decisiones, creando una demanda real de noticias."},
+      {q:"¿Qué efecto tuvo la educación universal en la prensa?",opts:["Redujo la competencia","Disminuyó el analfabetismo y amplió el público lector","Eliminó la prensa de élite","Impulsó la prensa oficial"],ans:1,exp:"Las leyes de escolarización obligatoria del siglo XIX (Foster Act 1870 en UK, escuelas públicas en EE. UU.) crearon generaciones que sabían leer pero nunca habían podido comprar un periódico. La prensa popular los capturó como audiencia."},
+      {q:"¿Qué infraestructura fue clave para la distribución nacional de periódicos?",opts:["La carretera romana","El ferrocarril","El barco de vapor","El automóvil"],ans:1,exp:"El ferrocarril permitió distribuir miles de ejemplares a centenares de kilómetros en pocas horas. Sin él, la prensa habría permanecido local. Los depósitos de prensa en estaciones convirtieron los trenes en el primer sistema de distribución mediática nacional."},
+      {q:"¿Qué invento permitió la circulación rápida de noticias internacionales?",opts:["La imprenta","La fotografía","El telégrafo","La rotativa"],ans:2,exp:"El telégrafo eléctrico (Morse, 1837) transmitió mensajes en minutos a través de continentes. Las agencias de noticias (Associated Press, fundada en 1846 precisamente para compartir costes telegráficos) nacieron por y para este invento."},
+      {q:"¿Qué periódico estadounidense impulsó la figura del reportero testigo directo?",opts:["The Sun","The New York Herald","The Times","The Penny Magazine"],ans:1,exp:"James Gordon Bennett, fundador del Herald (1835), enviaba periodistas al lugar de los hechos. Él cubrió personalmente un crimen célebre en 1836 y revolucionó el concepto de reportaje como testimonio directo, frente al artículo de opinión sin desplazamiento."},
+      {q:"¿Qué característica NO corresponde a la prensa de élite?",opts:["Precio elevado","Lenguaje literario","Venta directa por voceadores","Dependencia política"],ans:2,exp:"La venta callejera por voceadores es característica de la prensa popular de masas, no de la élite. Los periódicos de élite se distribuían mediante suscripción previa entre lectores ya comprometidos, sin necesidad de captación en la calle."},
+    ]
+  },
+  {
+    id:2, title:"La consolidación del modelo sensacionalista", sub:"",
+    qs:[
+      {q:"¿Qué objetivo perseguía el sensacionalismo de finales del siglo XIX?",opts:["Informar con objetividad","Provocar emoción en los lectores","Reducir el precio del periódico","Eliminar la competencia"],ans:1,exp:"El sensacionalismo explotó la psicología humana: el crimen, el sexo, el desastre y el escándalo generan reacción emocional inmediata. En un mercado saturado de penny papers, la emoción era la diferenciación competitiva, no la exactitud."},
+      {q:"¿Qué diario británico es antecedente directo del sensacionalismo?",opts:["Pall Mall Gazette","The Times","The Daily Mail","The Guardian"],ans:0,exp:"El Pall Mall Gazette de W.T. Stead en los años 1880 publicó reportajes de denuncia social con técnicas narrativas dramáticas (la campaña 'The Maiden Tribute of Modern Babylon' sobre prostitución infantil fue un escándalo mayúsculo). Stead demostró que la prensa podía movilizar a la opinión pública."},
+      {q:"¿Qué géneros impulsó el Pall Mall Gazette?",opts:["Reportaje","Entrevista","Editorial","Crítica literaria"],ans:[0,1],exp:"Stead sistematizó el reportaje de investigación (enviando periodistas encubiertos) y popularizó la entrevista como género autónomo. Ambas formas son pilares del periodismo moderno y surgieron precisamente de su voluntad de impactar emocionalmente al lector."},
+      {q:"¿Qué innovaciones surgieron por el uso del telégrafo en la guerra civil estadounidense?",opts:["El reportaje de viajes","El lead o entradilla","La brevedad y concisión","El editorial político"],ans:[1,2],exp:"El telégrafo costaba por palabra y podía cortarse en cualquier momento. Los corresponsales aprendieron a poner lo más importante primero (el lead) y a ser escuetos. Si la línea caía, el editor ya tenía lo esencial. Estas restricciones técnicas forjaron el estilo periodístico moderno."},
+      {q:"¿Qué estructura narrativa se generalizó durante la guerra civil estadounidense?",opts:["Pirámide clásica","Pirámide invertida","Relato circular","Crónica lineal"],ans:1,exp:"La pirámide invertida coloca los datos clave (quién, qué, cuándo, dónde) en el primer párrafo y va añadiendo detalles en orden decreciente de importancia. Nacida de la necesidad telegráfica, sigue siendo la estructura estándar del despacho informativo."},
+      {q:"¿Qué características definían el diseño sensacionalista?",opts:["Sobriedad","Titulares a varias columnas","Uso de ilustraciones y gráficos","Ausencia de imágenes"],ans:[1,2],exp:"Los periódicos de Pulitzer y Hearst rompieron la uniformidad tipográfica de la prensa seria. Los titulares a todo ancho de página y las ilustraciones (y después fotografías) convertían el periódico en un espectáculo visual, captando la atención en el quiosco."},
+      {q:"¿Qué periódico adquirió Pulitzer en 1883?",opts:["The Sun","The New York World","The New York Times","The Herald"],ans:1,exp:"Joseph Pulitzer compró el maltrecho New York World por 346.000 dólares y lo convirtió en el diario de mayor circulación de EE. UU. en pocos años. Su fórmula: denuncia social + entretenimiento + precio bajo + publicidad masiva."},
+      {q:"¿Qué innovación introdujo Pulitzer pensando en los inmigrantes?",opts:["El editorial moralizante","La entradilla para facilitar comprensión","La ausencia de titulares","La eliminación de ilustraciones"],ans:1,exp:"Nueva York era una ciudad de inmigrantes que leían inglés con dificultad. Pulitzer introdujo párrafos cortos, titulares explicativos y la entradilla (lead) para que cualquiera pudiera captar la noticia en un vistazo. Era inclusión por diseño periodístico."},
+      {q:"¿Qué rasgo caracteriza al periodismo de acción de Hearst?",opts:["Neutralidad","Participación activa en los hechos","Eliminación de campañas","Exclusión de sucesos"],ans:1,exp:"Hearst no informaba: intervenía. El Journal no solo cubrió el caso de Evangelina Cisneros, sino que organizó su fuga de la cárcel cubana en 1897. Esta fusión de actor y narrador escandalizó a los defensores de la objetividad pero vendió millones de ejemplares."},
+      {q:"¿Qué caso ejemplifica el periodismo de acción del Journal?",opts:["La guerra de Secesión","El rescate de Evangelina Cisneros","La reforma electoral","La huelga ferroviaria"],ans:1,exp:"Evangelina Cisneros era una joven cubana presa por los españoles. El New York Journal de Hearst montó una campaña mediática y organizó su rescate con un reportero. El caso ilustra cómo el sensacionalismo difuminó la línea entre noticia y operación propagandística."},
+      {q:"¿Qué periódico británico imitó el modelo sensacionalista estadounidense?",opts:["The Daily Mail","The Times","The Guardian","The Observer"],ans:0,exp:"Alfred Harmsworth fundó el Daily Mail en 1896 importando conscientemente las técnicas americanas: titulares impactantes, precio bajo (medio penique), cobertura de crímenes y deportes. En un año superó el millón de lectores, récord absoluto en la prensa británica."},
+      {q:"¿Qué rasgo definía al Daily Mirror en su etapa sensacionalista?",opts:["Enfoque político","Gran carga gráfica","Precio elevado","Lenguaje literario"],ans:1,exp:"El Daily Mirror (fundado en 1903) fue pionero en el uso intensivo de fotografías. Su apuesta gráfica lo convirtió en referencia del periodismo visual popular, antecedente directo de la prensa tabloide del siglo XX."},
+      {q:"¿Qué periódico representa la reacción al sensacionalismo?",opts:["The Sun","The Herald","The New York Times","The Daily Mail"],ans:2,exp:"Adolph Ochs compró el New York Times en 1896 cuando estaba casi en quiebra y lo relanzó con el lema 'All the news that's fit to print', diferenciándose radicalmente de Pulitzer y Hearst. El NYT era el antídoto: rigor frente a emoción."},
+      {q:"¿Qué estrategias aplicó Adolph Ochs para relanzar el NYT?",opts:["Distanciarse del sensacionalismo","Apostar por política, cultura e internacional","Titulares gigantes","Tono emocional"],ans:[0,1],exp:"Ochs bajó el precio a un centavo (para competir en ventas), pero mantuvo la sobriedad tipográfica, el lenguaje preciso y la cobertura internacional y cultural. Demostró que el rigor y la rentabilidad no eran incompatibles."},
+      {q:"¿Qué modelo adoptó el NYT desde su fundación?",opts:["Sensacionalismo","Precio económico + publicidad, pero con contenidos serios","Periodismo de acción","Sucesos y escándalos"],ans:1,exp:"La gran aportación de Ochs fue demostrar que el modelo económico de la prensa popular (precio bajo + publicidad) podía sostenerse con contenidos serios. No hacía falta el escándalo para ser rentable, bastaba con tener la audiencia educada que los anunciantes querían."},
+    ]
+  },
+  {
+    id:3, title:"El nacimiento del cine", sub:"",
+    qs:[
+      {q:"¿Qué factor clave de la Revolución Industrial favoreció el surgimiento del cine como entretenimiento?",opts:["La reducción del analfabetismo","La aparición del tiempo de ocio regulado","La expansión del teatro clásico","La invención del telégrafo"],ans:1,exp:"Las leyes laborales del siglo XIX (jornada de 10 horas, luego 8) crearon un recurso nuevo: el tiempo libre. La clase obrera tenía ahora tardes y domingos disponibles y buscaba entretenimiento barato. El cine a cinco céntimos (nickelodeon) respondió exactamente a esa necesidad."},
+      {q:"¿Qué aparato de Edison estaba orientado al consumo individual?",opts:["Cinematógrafo","Zoótropo","Kinetoscopio","Fenaquistiscopio"],ans:2,exp:"El kinetoscopio (1891) era una caja con una mirilla: un solo espectador miraba por ella mientras la película rodaba en su interior. Edison la concibió como máquina de entretenimiento individual (como una máquina tragaperras), no como espectáculo colectivo."},
+      {q:"¿Cuál fue la principal innovación del cinematógrafo de los Lumière?",opts:["La grabación en color","La proyección colectiva","El sonido sincronizado","La animación por dibujos"],ans:1,exp:"Auguste y Louis Lumière patentaron en 1895 un aparato que proyectaba imágenes en una pantalla para una sala entera. Este salto del consumo individual al colectivo es el que convierte al cine en medio de masas y en industria cultural."},
+      {q:"¿Qué característica definió el modelo industrial del cine en Francia?",opts:["Monopolio estatal","Libre competencia y ausencia de restricciones","Control militar de la producción","Pago obligatorio de licencias"],ans:1,exp:"Pathé y Gaumont operaron en un mercado abierto y se expandieron globalmente antes de que ningún gobierno regulara el sector. Este laissez-faire permitió una innovación rápida y la exportación del cine francés a todo el mundo antes de la Primera Guerra Mundial."},
+      {q:"¿Qué compañía ejerció un monopolio de facto sobre el cine en Estados Unidos en sus inicios?",opts:["Pathé","Gaumont","Edison Manufacturing Company","Paramount Pictures"],ans:2,exp:"Edison registró agresivamente todas las patentes relacionadas con el cine y demandó a cualquier competidor. En 1908 formalizó el monopolio con el Motion Picture Patents Company (MPPC), el 'trust de Edison', que cobró royalties por cada cámara y proyector vendido en EE. UU."},
+      {q:"¿Qué tipo de escenas predominaban en los primeros cortos de los Lumière?",opts:["Historias fantásticas","Escenas cotidianas","Dramas históricos","Recreaciones teatrales"],ans:1,exp:"Los primeros films Lumière (La salida de la fábrica, La llegada del tren, El regador regado) documentaban momentos de la vida ordinaria. La novedad era la imagen en movimiento en sí, no la narrativa; el contenido era el mundo tal como era."},
+      {q:"¿Qué motivó la búsqueda de imágenes exóticas en los primeros documentales?",opts:["La censura estatal","La saturación del público ante lo cotidiano","La competencia con la radio","La falta de cámaras portátiles"],ans:1,exp:"Una vez que el público se acostumbró a ver trenes y obreros en pantalla, necesitó algo más estimulante. Los operadores Lumière viajaron a Egipto, México, Japón y Rusia para filmar lo que los espectadores nunca verían de otro modo: el inicio del documentalismo de viajes."},
+      {q:"¿Qué empresa introdujo los primeros noticieros cinematográficos?",opts:["Edison","Pathé","Gaumont","Lumière"],ans:1,exp:"Pathé Frères lanzó el 'Pathé Journal' en 1908, noticiario semanal que se proyectaba antes de las películas. Fue el antecedente directo del No-Do franquista, los Universal Newsreels y el posterior noticiario televisivo."},
+      {q:"¿Qué aportación se asocia a F. Percy Smith?",opts:["El montaje paralelo","El documental de naturaleza","El primer largometraje","El stop trick"],ans:1,exp:"Percy Smith fue pionero del cine científico-natural en el Reino Unido (1900s-1920s). Usó técnicas de time-lapse para mostrar el crecimiento de plantas y el comportamiento de insectos, haciendo visible lo invisible y fundando una tradición documental que llega hasta Attenborough."},
+      {q:"¿Cuál es considerado el primer cortometraje de ficción, aunque de forma generosa?",opts:["Viaje a la Luna","L'Arroseur arrosé","El nacimiento de una nación","La llegada del tren"],ans:1,exp:"L'Arroseur arrosé (El regador regado, 1895) de los Lumière muestra un gag cómico con personajes y una pequeña trama (un niño pisa la manguera, el jardinero se moja). Aunque es solo un chiste filmado, contiene los elementos básicos de la ficción: personajes, conflicto y resolución."},
+      {q:"¿Qué aportación técnica caracteriza a Méliès?",opts:["El montaje invisible","Los efectos especiales","El sonido directo","La cámara al hombro"],ans:1,exp:"Georges Méliès descubrió accidentalmente el 'stop trick' (parar y mover objetos) y desarrolló decenas de trucos de cámara: sobreimpresiones, fundidos, miniaturas. Su Viaje a la Luna (1902) es el primer film de efectos especiales y el nacimiento del cine fantástico."},
+      {q:"¿Qué técnica introdujo Porter?",opts:["Stop trick","Montaje paralelo","Cámara lenta","Travelling lateral"],ans:1,exp:"Edwin S. Porter en Asalto y robo del tren (1903) montó escenas simultáneas para crear tensión (el robo y la persecución ocurren 'al mismo tiempo'). Este montaje paralelo es la base de toda narrativa cinematográfica de acción posterior."},
+      {q:"¿Qué aportación NO corresponde a Griffith?",opts:["Armonizar avances previos","Introducir el largometraje","Crear superproducciones","Inventar la animación"],ans:3,exp:"La animación es un campo separado, desarrollado por Émile Cohl y Walt Disney. Griffith sistematizó el lenguaje cinematográfico (plano-contraplano, primer plano expresivo, montaje de atracción) y con El nacimiento de una nación (1915) demostró que el cine podía ser épico y durar horas."},
+      {q:"¿Qué motivó el traslado de productores estadounidenses hacia California?",opts:["La cercanía a Europa","La búsqueda de más horas de luz","La presión fiscal francesa","La falta de estudios en Nueva York"],ans:1,exp:"En la era del cine mudo, la luz natural era imprescindible. California ofrecía 300 días de sol al año. Además, su lejanía de Nueva York permitía a los productores independientes escapar de los agentes del monopolio de Edison, que operaban en la Costa Este."},
+      {q:"¿Qué función cumplían los primeros noticieros cinematográficos?",opts:["Sustituir a la prensa escrita","Formar a operadores de cámara","Servir como propaganda estatal","Complementar la programación del cine"],ans:3,exp:"Los noticieros (Pathé Journal, Gaumont Graphic) eran el 'aperitivo' antes de la película principal. Informaban con imágenes sobre guerras, deportes y catástrofes, creando en el público el hábito de consumir noticias audiovisuales que luego trasladaría al televisor."},
+    ]
+  },
+  {
+    id:4, title:"La industrialización de la persuasión", sub:"",
+    qs:[
+      {q:"¿Qué característica define a la propaganda antes de la imprenta?",opts:["Era bidireccional","Estaba monopolizada por el poder","Se difundía por radio","Dependía de la prensa popular"],ans:1,exp:"Antes de Gutenberg, la reproducción de textos era artesanal y lentísima. Solo el poder (Iglesia, monarquía) disponía de los recursos para producir manuscritos, imágenes religiosas y rituales públicos. El mensaje fluía siempre de arriba abajo."},
+      {q:"¿Qué elemento permitió que la Reforma protestante se expandiera rápidamente?",opts:["La alfabetización universal","La radio","La imprenta","La prensa ilustrada"],ans:2,exp:"Lutero publicó sus 95 tesis en 1517; en tres semanas circulaban por toda Alemania gracias a la imprenta. Sus Escritos de reforma se imprimieron 300.000 veces entre 1517 y 1520. Sin la imprenta, la Reforma habría sido aplastada como tantas herejías medievales anteriores."},
+      {q:"¿Qué institución católica da origen al término 'propaganda'?",opts:["Concilio de Trento","Orden de Predicadores","Santa Inquisición","Congregatio de Propaganda Fide"],ans:3,exp:"El papa Gregorio XV creó en 1622 la Congregatio de Propaganda Fide ('Congregación para la Propagación de la Fe') para coordinar la evangelización y la Contrarreforma. De ahí viene la palabra 'propaganda': la fe que debía propagarse."},
+      {q:"¿Cuál NO fue una medida defensiva de los Estados absolutistas?",opts:["Censura previa","Licencia de impresión","Presión fiscal","Creación de periódicos oficiales"],ans:3,exp:"Los estados absolutistas sí crearon gacetas oficiales (La Gazette de Renaudot en Francia, 1631), pero eso fue una medida ofensiva —controlar el relato— no defensiva. Las medidas defensivas eran restrictivas: censura, licencias, tasas sobre papel que encarecían la prensa crítica."},
+      {q:"¿Qué factor de la Revolución Industrial impulsó la publicidad moderna?",opts:["La reducción de la jornada laboral","La producción masiva y la competencia","La aparición del cine","La expansión del ferrocarril"],ans:1,exp:"Cuando las fábricas podían producir millones de unidades del mismo producto, el reto dejó de ser fabricar y pasó a ser vender. La publicidad nació como herramienta para crear demanda y diferenciarse de los competidores en un mercado de bienes idénticos."},
+      {q:"¿Qué relación se establece entre prensa popular y publicidad?",opts:["Competencia directa","Relación simbiótica","Independencia total","Sustitución de funciones"],ans:1,exp:"La prensa popular necesitaba ingresos publicitarios para bajar el precio del ejemplar; los anunciantes necesitaban la audiencia masiva que solo la prensa popular podía ofrecer. Ambos se alimentaban mutuamente: más lectores = más publicidad = precio más bajo = más lectores."},
+      {q:"¿Quién fundó la primera agencia publicitaria moderna?",opts:["Edward Bernays","James Walter Thompson","Ivy Lee","George Creel"],ans:1,exp:"J. Walter Thompson creó en Nueva York (1878) la primera agencia que ofrecía servicios completos: redacción, diseño y planificación de medios. Antes, los agentes solo compraban espacio en periódicos. Thompson convirtió la publicidad en una disciplina profesional."},
+      {q:"¿Qué aportación caracteriza a Thompson?",opts:["La propaganda de atrocidades","La medición de audiencias","La segmentación del público","El servicio integral al anunciante"],ans:3,exp:"Thompson introdujo el concepto de 'full service': la agencia no solo compraba espacio sino que creaba el anuncio entero (texto, imagen, estrategia). Esto profesionalizó la publicidad y la alejó del modelo anterior, en que el propio anunciante redactaba sus reclamos."},
+      {q:"¿Qué factor hizo necesaria la propaganda en la Primera Guerra Mundial?",opts:["La brevedad del conflicto","La falta de prensa","La necesidad de reclutamiento y moral","La ausencia de medios de masas"],ans:2,exp:"La Gran Guerra fue la primera guerra industrial que exigió la movilización total de la población civil: millones de soldados voluntarios, obreros en las fábricas de armamento, ahorro de alimentos. Mantener esa movilización requería un relato permanente que justificara el sacrificio."},
+      {q:"¿Qué rasgo define la propaganda británica durante la IGM?",opts:["Control militar absoluto","Colaboración estrecha con la prensa","Prohibición de imágenes","Descentralización total"],ans:1,exp:"El War Propaganda Bureau (Wellington House) reclutó a novelistas, periodistas y académicos para producir folletos, libros y artículos de aspecto independiente. La propaganda más eficaz era la que no parecía propaganda: textos firmados por intelectuales de prestigio."},
+      {q:"¿Quién dirigió el Comité de Información Pública en Estados Unidos?",opts:["Edward Bernays","George Creel","Ivy Lee","Woodrow Wilson"],ans:1,exp:"George Creel dirigió el CPI (1917-19), movilizando 150.000 voluntarios ('Four-Minute Men') que daban discursos en cines, teatros y escuelas para apoyar la entrada en guerra. El CPI inventó la propaganda estatal moderna en democracia y fue el modelo que estudió el régimen nazi."},
+      {q:"¿Qué técnica NO forma parte de la propaganda aliada?",opts:["Uso de estereotipos","Historias de atrocidades","Repetición de eslóganes","Neutralidad informativa"],ans:3,exp:"La neutralidad informativa es precisamente lo opuesto a la propaganda. Los aliados usaron ampliamente estereotipos del 'bárbaro alemán', historias de atrocidades (algunas inventadas, como los bebés empalados) y eslóganes repetidos hasta el agotamiento."},
+      {q:"¿Qué caracterizó a la propaganda alemana durante la IGM?",opts:["Coordinación eficaz","Gestión civil","Control militar rígido","Colaboración con la prensa"],ans:2,exp:"En Alemania, el ejército (Oberkommando) controló la propaganda con una rigidez que limitó su eficacia. Los militares veían con desconfianza a los periodistas y propagandistas civiles, a diferencia de los aliados que los integraron. Hitler lo estudió y en el Mein Kampf criticó esta torpeza alemana."},
+      {q:"¿Qué motivó el desarrollo de las relaciones públicas?",opts:["La caída de la prensa","La necesidad de gestionar la opinión pública","La desaparición de la publicidad","La censura estatal"],ans:1,exp:"Tras la IGM, gobiernos y grandes corporaciones descubrieron que la opinión pública era un factor de poder que podía organizarse y gestionarse. Ivy Lee (para Rockefeller) e Ivy Lee y Edward Bernays (discípulo de Freud) sistematizaron las técnicas para moldear la percepción pública."},
+      {q:"¿Qué táctica es propia de las relaciones públicas?",opts:["Venta directa","Promoción de pseudoeventos","Publicidad en prensa","Segmentación comercial"],ans:1,exp:"El 'pseudoevento' (término de Daniel Boorstin) es un acontecimiento creado exclusivamente para ser cubierto por los medios: una rueda de prensa, un aniversario de empresa, una inauguración. No tiene valor informativo intrínseco; existe solo para generar cobertura gratuita."},
+    ]
+  },
+  {
+    id:5, title:"La comunicación en el período de entreguerras", sub:"",
+    qs:[
+      {q:"¿Qué dos tecnologías del siglo XIX hicieron posible el nacimiento de la radio?",opts:["El teléfono y la telegrafía inalámbrica","La fotografía y el telégrafo","El fonógrafo y la linotipia","El cine y la electricidad"],ans:0,exp:"Marconi combinó el telégrafo (transmisión de señales en código) con el principio de la inducción electromagnética (Maxwell, Hertz) para crear la telegrafía sin hilos en 1895. De ahí al broadcasting solo faltó la válvula de vacío (De Forest, 1906) que permitió transmitir voz."},
+      {q:"¿Qué papel desempeñó la Primera Guerra Mundial en el desarrollo de la radio?",opts:["La retrasó por falta de recursos","Impulsó su uso militar y la formación de operadores","La sustituyó por el telégrafo","La limitó a comunicaciones navales"],ans:1,exp:"Los ejércitos formaron miles de operadores de radio para comunicaciones de campaña y navegación. Al terminar la guerra, estos técnicos desmobilizados, junto con el excedente de equipos militares, crearon el ecosistema humano y tecnológico del que emergieron las primeras emisoras."},
+      {q:"¿Qué emisora estadounidense se considera la primera emisora regular?",opts:["WEAF","KDKA","CBS","NBC Blue"],ans:1,exp:"KDKA (Pittsburgh, Westinghouse) emitió en noviembre de 1920 los resultados de las elecciones presidenciales Harding-Cox. Aunque hubo emisiones experimentales previas, KDKA es considerada la primera emisora con programación regular y licencia oficial, el Big Bang de la radio comercial."},
+      {q:"¿Cuál fue el modelo radiofónico estadounidense en los años 20 y 30?",opts:["Iniciativa privada y financiación por publicidad","Monopolio estatal","Financiación por impuestos","Prohibición de contenidos musicales"],ans:0,exp:"En EE. UU. la radio fue desde el principio un negocio privado. La publicidad la financiaba; las cadenas (NBC desde 1926, CBS desde 1927) eran empresas comerciales. El Estado solo regulaba el espectro electromagnético (Federal Radio Commission, 1927)."},
+      {q:"¿Qué formato dominó la radio estadounidense en sus primeros años?",opts:["Informativos","Música y entretenimiento","Debates políticos","Documentales"],ans:1,exp:"La radio en los años 20 era sobre todo música en directo (jazz, orquestas de hotel, música clásica), variedades y humor. La información noticiosa era mínima porque los periódicos presionaron para que la radio no les compitiera en noticias; el entretenimiento era el territorio natural del nuevo medio."},
+      {q:"¿Qué programa inauguró la ficción radiofónica en 1928?",opts:["The Goldbergs","Amos 'n' Andy","Tarzan","Sherlock Holmes"],ans:1,exp:"Amos 'n' Andy, creado por Freeman Gosden y Charles Correll, fue el primer serial de ficción radiofónico de éxito masivo en EE. UU. Sus personajes afroamericanos (interpretados por actores blancos) se convirtieron en fenómeno cultural, aunque hoy se valora críticamente su carga racista."},
+      {q:"¿Qué característica introdujo Amos 'n' Andy en la programación?",opts:["Emisión diaria","Emisión fija semanal en horario estable","Ausencia de patrocinadores","Exclusión de humor"],ans:1,exp:"Amos 'n' Andy estableció la 'franja horaria' (time slot): los oyentes sabían exactamente cuándo encontrar su programa. Esta regularidad creó el hábito de escucha rutinaria y el concepto de 'audiencia fiel' que después estructuró toda la programación radiofónica y televisiva."},
+      {q:"¿Qué motivó la creación de cadenas radiofónicas en EE. UU.?",opts:["La censura estatal","Reducir costes y ampliar audiencia","La competencia con la prensa","La prohibición de emisoras locales"],ans:1,exp:"Producir contenidos de calidad (orquestas, actores famosos) era caro para una sola emisora local. Las cadenas (networks) distribuían los mismos programas por centenares de emisoras afiliadas, repartiendo costes y multiplicando la audiencia, lo que atraía anunciantes nacionales."},
+      {q:"¿Qué rasgo define el modelo radiofónico británico?",opts:["Patrocinio privado","Competencia comercial","Monopolio estatal y financiación por impuestos","Venta de espacios publicitarios"],ans:2,exp:"La BBC (British Broadcasting Corporation) se fundó en 1927 como corporación pública financiada por un 'canon' (license fee) que pagaban todos los propietarios de receptores. Este modelo de servicio público sin publicidad fue el contrapunto europeo al modelo comercial norteamericano."},
+      {q:"¿Qué tipo de contenidos priorizó la BBC?",opts:["Sucesos y deportes","Ficción seriada","Humor y variedades","Contenidos divulgativos y culturales"],ans:3,exp:"John Reith, primer director general de la BBC, formuló su misión: 'inform, educate, entertain', en ese orden. La BBC emitía conferencias, ópera, debates parlamentarios y drama clásico. El entretenimiento existía, pero subordinado a la misión educativa y cultural."},
+      {q:"¿Qué papel tuvo la radio en la propaganda totalitaria?",opts:["Fue irrelevante","Se usó para difundir discursos y consignas ideológicas","Se prohibió su uso civil","Solo se empleó para música patriótica"],ans:1,exp:"Hitler y Goebbels comprendieron antes que nadie el poder de la voz radiofónica. El Volksempfänger (receptor del pueblo, 35 Reichsmarks) fue subsidiado para que cada hogar alemán pudiera escuchar al Führer. Stalin, Mussolini y Franco hicieron lo mismo con la EIAR italiana y Radio Nacional."},
+      {q:"¿Quién destacó en la propaganda radiofónica estadounidense previa a la guerra?",opts:["Edward Murrow","Charles Coughlin","Franklin D. Roosevelt","William Hearst"],ans:1,exp:"El padre Charles Coughlin fue el primer demagogo radiofónico: en los años 30 tenía 30 millones de oyentes semanales. Sus discursos antisemitas y pro-fascistas demostraron la capacidad de la radio para radicalizar masas, anticipando la radio de extrema derecha posterior."},
+      {q:"¿Qué innovación informativa introdujo Murrow en 1938?",opts:["El editorial radiofónico","El primer especial informativo con conexiones internacionales","La lectura dramatizada","La propaganda negra"],ans:1,exp:"Edward Murrow (CBS) coordinó en marzo de 1938 el primer especial informativo en directo con corresponsales simultáneos en Berlín, Viena, Londres y París para cubrir el Anschluss. Inventó el formato del informativo con múltiples conexiones en vivo que aún hoy usan CNN y la BBC."},
+      {q:"¿Qué problema afrontó Hollywood tras la crisis del 29?",opts:["Falta de actores","Prohibición de musicales","Caída de espectadores y competencia de la radio","Censura total"],ans:2,exp:"La Gran Depresión redujo drásticamente el gasto en ocio. Las familias preferían la radio (ya pagada) al cine. Hollywood necesitaba un argumento de venta que justificara salir de casa y pagar la entrada, lo que impulsó la búsqueda de espectacularidad."},
+      {q:"¿Qué dos innovaciones impulsó Hollywood para recuperar público?",opts:["3D y widescreen","Cine sonoro y cine en color","Animación y documental","Cine mudo y seriales"],ans:1,exp:"El cine sonoro (The Jazz Singer, 1927) ya había cambiado la industria. Durante la depresión, el Technicolor tricomponente (desde 1932) y los musicales en color ofrecían un espectáculo que la radio nunca podría igualar. Lo que no podía competir con la radio tenía que ser visualmente irresistible."},
+    ]
+  },
+  {
+    id:6, title:"Propaganda y comunicación en la Segunda Guerra Mundial", sub:"",
+    qs:[
+      {q:"¿Qué caracteriza a la propaganda mecanicista?",opts:["Prescinde del contexto social e histórico","Oculta su origen","Usa solo información veraz","Se basa en rumores"],ans:0,exp:"La propaganda mecanicista (modelo conductista de estímulo-respuesta) asume que el mensaje produce un efecto predecible en todas las personas, independientemente de su cultura o contexto. Es la visión de la 'aguja hipodérmica': el mensaje se 'inyecta' y el público reacciona de forma uniforme."},
+      {q:"¿Qué país aplicó principalmente la propaganda mecanicista?",opts:["Reino Unido","Estados Unidos","Alemania (III Reich)","URSS"],ans:2,exp:"Goebbels aplicó la propaganda mecanicista con precisión industrial: carteles idénticos en todo el Reich, discursos con estructura repetitiva, radio controlada desde Berlín. El Ministerio de Propaganda diseñaba el mensaje asumiendo que el pueblo alemán respondería de forma previsible."},
+      {q:"¿Cuál fue uno de los errores de la propaganda alemana hacia el exterior?",opts:["Ganarse la enemistad de los países ocupados","Usar propaganda blanca","Evitar la radio","No usar cine"],ans:0,exp:"La propaganda nazi en los países ocupados (Francia, Holanda, Polonia) fue tan humillante y racista que convirtió a poblaciones que quizás habrían sido neutrales en resistentes activos. La arrogancia ideológica arruinó cualquier posibilidad de colaboración voluntaria."},
+      {q:"¿Qué tipo de propaganda predominó en los países democráticos?",opts:["Negra","Mecanista","Blanca","Encubierta"],ans:2,exp:"La propaganda blanca (fuente conocida, información verificable con carga emocional) fue la apuesta democrática porque era más creíble a largo plazo. La BBC, por ejemplo, informó incluso de derrotas aliadas para ganarse la confianza del oyente, lo que fue su mayor activo."},
+      {q:"¿Qué define la propaganda blanca?",opts:["Mentiras sistemáticas","Información veraz con carga emocional","Ocultar el origen","Falsificar documentos"],ans:1,exp:"La propaganda blanca no miente sobre los hechos, pero los selecciona, enmarca y presenta de forma que produzcan la reacción emocional deseada. La BBC durante la IIGM era propaganda blanca: reconocía las derrotas pero las contextualizaba dentro de un relato de resistencia final victorioso."},
+      {q:"¿Qué organismo estadounidense coordinó la propaganda en 1942?",opts:["CIA","OWI (Office of War Information)","Voice of America","FBI"],ans:1,exp:"Franklin D. Roosevelt creó la OWI en junio de 1942 bajo la dirección del periodista Elmer Davis. Coordinó toda la comunicación de guerra: películas, radio, carteles, prensa. Fue el equivalente en democracia del Ministerio de Propaganda de Goebbels, aunque con mucho menos control sobre los medios privados."},
+      {q:"¿Qué emisora aliada tuvo gran éxito en Europa?",opts:["NBC","Radio Free Europe","BBC","CBS"],ans:2,exp:"La BBC World Service emitía en alemán, francés, italiano, polaco y otros idiomas. Los europeos bajo ocupación nazi sintonizaban la BBC clandestinamente (pena de muerte en algunos países) porque era la única fuente de información no controlada. Su credibilidad se convirtió en arma estratégica."},
+      {q:"¿Qué fue Voice of America?",opts:["Una emisora nazi","Un servicio de inteligencia","Un periódico clandestino","La emisora estadounidense para propaganda internacional"],ans:3,exp:"Voice of America comenzó sus emisiones en febrero de 1942 en alemán. Era la voz oficial de EE. UU. en el extranjero, emitiendo en decenas de idiomas. Su lema durante la guerra: 'The news may be good. The news may be bad. We shall tell you the truth.'"},
+      {q:"¿Qué elementos caracterizan a la propaganda negra?",opts:["Es veraz","Oculta su origen y se hace pasar por el enemigo","Busca minar la moral enemiga","Se basa en datos oficiales"],ans:[1,2],exp:"La propaganda negra (black propaganda) finge ser del propio enemigo para desmoralizarlo desde dentro. El británico Sefton Delmer creó emisoras que parecían nazis para difundir rumores desestabilizadores entre soldados y civiles alemanes. La combinación de desinformación y verosimilitud la hacía devastadora."},
+      {q:"¿Qué fue Gustav Siegrid Eins (GS1)?",opts:["Una emisora nazi","Una emisora británica clandestina dirigida a Alemania","Un periódico soviético","Un documental alemán"],ans:1,exp:"GS1 era la emisora de propaganda negra de Sefton Delmer (PWE británico). Fingía ser una emisora de la marina alemana que transmitía noticias 'prohibidas' y rumores que minaban la moral de los soldados alemanes. Era eficaz porque parecía auténticamente alemana."},
+      {q:"¿Qué medio fue clave para la propaganda en ambos bandos durante la Segunda Guerra Mundial?",opts:["La prensa","La fotografía","La radio","La novela"],ans:2,exp:"La radio fue el medio dominante por su capacidad de llegar simultáneamente a millones de personas. Era el único medio que funcionaba en tiempo real, podía penetrar fronteras (imposible con la prensa en países ocupados) y apelaba directamente a las emociones a través de la voz."},
+      {q:"¿Qué país realizó más propaganda cinematográfica?",opts:["Alemania","Reino Unido","Estados Unidos","Japón"],ans:2,exp:"Hollywood produjo centenares de películas de guerra: dramas bélicos, comedias patrióticas, documentales. El gobierno de EE. UU. (OWI) trabajó directamente con los estudios para asegurar que los mensajes fueran los correctos. Ningún otro país tenía la capacidad industrial de Hollywood."},
+      {q:"¿Qué director realizó la serie documental Why We Fight?",opts:["Orson Welles","Frank Capra","John Huston","Billy Wilder"],ans:1,exp:"Frank Capra, ya famoso por sus comedias (It Happened One Night, Mr. Smith Goes to Washington), dirigió por encargo del ejército la serie de siete documentales Why We Fight (1942-1945). Usaron metraje capturado al enemigo para explicar las causas de la guerra a los soldados americanos."},
+      {q:"¿Qué tipo de películas producía Hollywood durante la guerra?",opts:["Films patrióticos","Películas de espionaje y resistencia","Documentales de campaña","Todas las anteriores son correctas"],ans:3,exp:"Hollywood produjo todos estos géneros simultáneamente. Mrs. Miniver (1942) mostraba la resistencia civil británica; Casablanca (1942) mezclaba romance y antifascismo; los documentales de Capra explicaban la guerra. La industria entera se movilizó como maquinaria propagandística voluntaria."},
+      {q:"¿Qué estrategia adoptó Alemania cuando comenzaron las derrotas?",opts:["Incrementar noticiarios veraces","Potenciar películas de ficción e históricas","Abandonar el cine","Copiar el modelo estadounidense"],ans:1,exp:"Cuando las derrotas militares hacían imposible el noticiario triunfal, Goebbels apostó por el entretenimiento: películas históricas épicas (Kolberg, 1945) y comedias musicales que evitaban la realidad de la guerra. El objetivo era mantener la moral sin informar."},
+    ]
+  },
+  {
+    id:7, title:"La televisión: de su nacimiento a la edad de oro", sub:"",
+    qs:[
+      {q:"¿Quién realizó la primera retransmisión televisiva pública en 1926?",opts:["John Logie Baird","Philo Farnsworth","Marconi","Zworykin"],ans:0,exp:"John Logie Baird demostró en enero de 1926 ante miembros de la Royal Institution de Londres la primera transmisión de imágenes en movimiento por televisión mecánica. Sus 'televisores' eran voluminosos y mostraban imágenes de baja calidad, pero el principio estaba demostrado."},
+      {q:"¿Qué característica definía a la televisión mecánica?",opts:["Alta calidad de imagen","Uso de sistemas mecánicos y baja resolución","Emisión en color","Pantallas de gran tamaño"],ans:1,exp:"Los sistemas de Baird usaban un disco de Nipkow (disco giratorio perforado) para escanear la imagen. Era una solución mecánica, no electrónica. La resolución era bajísima (30 líneas en los primeros sistemas, frente a las 625 del PAL europeo posterior), lo que hacía las imágenes casi irreconocibles."},
+      {q:"¿Qué país desarrolló uno de los primeros servicios televisivos regulares antes de la Segunda Guerra Mundial?",opts:["Estados Unidos","Francia","Alemania","Italia"],ans:2,exp:"La Reichs-Rundfunk-Gesellschaft comenzó emisiones regulares de televisión en Berlín en 1935, años antes que la BBC (1936) o la NBC (1941). La televisión nazi se usó como vitrina tecnológica del Tercer Reich, aunque el número de receptores era mínimo."},
+      {q:"¿Cuál fue el principal uso propagandístico de la televisión nazi?",opts:["Emitir discursos de Hitler a millones de hogares","Mostrar superioridad tecnológica en salones públicos","Controlar la información internacional","Retransmitir noticiarios diarios"],ans:1,exp:"Los receptores domésticos eran carísimos y raros. Los nazis instalaron 'salas de televisión' públicas (Fernsehstuben) donde grupos de ciudadanos podían ver las emisiones. Era propaganda de la propaganda: demostrar que Alemania dominaba la tecnología del futuro."},
+      {q:"¿Qué evento televisivo destacó en la Alemania nazi?",opts:["La invasión de Polonia","La firma del Pacto de Acero","El congreso de Núremberg","Los Juegos Olímpicos de Berlín 1936"],ans:3,exp:"Los Juegos Olímpicos de Berlín 1936 fueron retransmitidos por televisión en circuito cerrado a salas públicas de Berlín y Hamburgo. Fue el primer gran evento deportivo televisado de la historia y demostró el potencial propagandístico del medio: deporte + tecnología = imagen de potencia nacional."},
+      {q:"¿Por qué la televisión no era aún un medio de masas antes de 1950?",opts:["Alto coste de receptores y escasa cobertura","Falta de contenidos","Prohibición estatal","Ausencia de emisoras"],ans:0,exp:"En 1948, solo 172.000 hogares estadounidenses tenían televisor (frente a 36 millones con radio). El receptor costaba entre 300 y 500 dólares cuando el salario medio mensual era de 200. Además, las emisoras solo cubrían unas pocas ciudades. El precio y la cobertura eran las dos barreras infranqueables."},
+      {q:"¿Qué permitió la expansión masiva de la televisión en los años 50?",opts:["Abaratamiento de receptores y crecimiento económico","La radio","La propaganda política","La aparición del color"],ans:0,exp:"El boom económico de posguerra en EE. UU. (y algo después en Europa Occidental) elevó los salarios de la clase media. Los televisores bajaron a 100-200 dólares. En 1960 el 90% de los hogares estadounidenses tenían televisor, una penetración que la radio tardó 30 años en alcanzar."},
+      {q:"¿Qué cadenas dominaron el oligopolio televisivo estadounidense?",opts:["Fox, CNN y ABC","CBS, HBO y CNN","PBS, NBC y Fox","NBC, CBS y ABC"],ans:3,exp:"NBC (fundada en 1926), CBS (1927) y ABC (escisión de NBC en 1943) trasladaron sus estructuras de cadenas radiofónicas a la televisión. Durante décadas controlaron casi el 100% de la audiencia televisiva americana, un oligopolio de tres que se mantendría hasta la llegada del cable en los años 80."},
+      {q:"¿Qué modelo de financiación caracterizó a la televisión estadounidense en sus inicios?",opts:["Impuestos","Patrocinio publicitario","Cuotas obligatorias","Subvenciones estatales"],ans:1,exp:"Igual que la radio, la televisión americana nació financiada por sponsors. Un anunciante compraba un programa entero: The Kraft Television Theatre, The Camel News Caravan. El sponsor no solo pagaba, también controlaba el contenido, lo que generó problemas editoriales evidentes."},
+      {q:"¿Qué ventaja introdujo el spot frente al patrocinio?",opts:["Más anunciantes y menor control del contenido por parte de uno solo","Mayor duración","Eliminación de la publicidad","Financiación estatal"],ans:0,exp:"El spot de 30-60 segundos (generalizado en los años 60) permitió que docenas de anunciantes compartieran el coste de un programa. Ninguno lo controlaba individualmente, lo que dio más independencia editorial a las cadenas. Además, los anunciantes podían elegir segmentos de audiencia específicos."},
+      {q:"¿Qué formato televisivo adaptó directamente el vodevil y la radio?",opts:["Sitcom","Programas de variedades","Informativos","Antologías"],ans:1,exp:"Los primeros programas televisivos de éxito fueron variedades: The Ed Sullivan Show, The Milton Berle Show. Eran exactamente el mismo formato del vodevil teatral y la radio: un presentador (host), sketches cómicos, música y actos especiales. La televisión no inventó el entretenimiento; lo filmó."},
+      {q:"¿Qué programa modernizó la información televisiva en EE. UU.?",opts:["NBC News","Panorama","CBS Evening News","See It Now"],ans:3,exp:"See It Now de Edward Murrow (CBS, 1951-1958) fue el primer magazine informativo serio de la televisión americana. Murrow usó las lecciones del periodismo radiofónico (que él mismo había inventado) para crear reportajes en profundidad, incluyendo el célebre episodio sobre McCarthy en 1954."},
+      {q:"¿Qué rasgo definía a las sitcom de los años 50?",opts:["Historias independientes","Personajes fijos y tono costumbrista","Enfoque documental","Ausencia de humor"],ans:1,exp:"La situation comedy (sitcom) tiene personajes fijos en situaciones domésticas o laborales reconocibles. I Love Lucy (1951) definió el género: una familia de clase media, situaciones cotidianas y humor físico. La fórmula era perfecta para la televisión porque fidelizaba a la audiencia semana a semana."},
+      {q:"¿Qué modelo televisivo predominó en Europa tras la guerra?",opts:["Servicio público financiado por el Estado","Competencia comercial","Patrocinio exclusivo","Televisión regional privada"],ans:0,exp:"En la Europa de posguerra, la televisión siguió el modelo radiofónico: organismos públicos estatales (BBC, RAI italiana, ARD alemana, ORTF francesa, TVE española). El Estado controlaba el único canal o los pocos canales existentes; la televisión comercial llegó a la mayoría de países europeos en los años 80."},
+      {q:"¿Qué cadena rompió el monopolio televisivo británico en 1955?",opts:["BBC Two","ITV","Channel 4","Sky"],ans:1,exp:"La Television Act de 1954 creó ITV (Independent Television), la primera cadena comercial británica. Financiada por publicidad y gestionada por empresas regionales, ITV obligó a la BBC a competir por audiencia por primera vez, lo que mejoró la calidad de ambas."},
+    ]
+  },
+  {
+    id:8, title:"Información y entretenimiento en la Guerra Fría", sub:"",
+    qs:[
+      {q:"¿Qué acontecimiento marcó el fin del sistema de estudios en Hollywood?",opts:["La llegada del color","La sentencia antimonopolio de 1948","La aparición del VHS","La crisis del petróleo"],ans:1,exp:"El caso United States vs. Paramount Pictures (1948) determinó que los estudios no podían poseer simultáneamente los medios de producción (estudios), distribución y exhibición (salas). Los estudios vendieron sus cadenas de cines, rompiendo el sistema vertically integrated que había controlado Hollywood desde los años 20."},
+      {q:"¿Por qué los estudios vetaron la emisión de películas en TV hasta 1954?",opts:["Para no alimentar a un medio competidor","Por falta de derechos","Por censura","Por baja calidad técnica"],ans:0,exp:"Los estudios veían la televisión como un enemigo que robaba espectadores a sus salas. Prohibieron a sus estrellas actuar en televisión y negaron el catálogo de películas a las cadenas. Este veto duró hasta 1954-1956, cuando el declive de la taquilla les forzó a negociar."},
+      {q:"¿Qué estrategia adoptó Hollywood frente a la televisión?",opts:["Reducir presupuestos","Apostar por espectacularización y formatos panorámicos","Abandonar el color","Producir solo documentales"],ans:1,exp:"Hollywood ofreció lo que la televisión no podía: pantallas enormes (Cinemascope, VistaVision), sonido estereofónico, películas en color en una época en que la TV era en blanco y negro, y superproducciones con miles de extras (Ben-Hur, Lawrence de Arabia). El argumento era el espectáculo."},
+      {q:"¿Qué movimiento europeo reaccionó contra el cine espectacular?",opts:["Expresionismo","Surrealismo","Neorrealismo y nouvelle vague","Dogma 95"],ans:2,exp:"El neorrealismo italiano (Rossellini, De Sica, Visconti) reaccionó contra el cine fascista y el espectáculo americano rodando en exteriores con actores no profesionales y luz natural (Roma, ciudad abierta, 1945). La Nouvelle Vague francesa (Godard, Truffaut) añadió ruptura narrativa y cinefilia reflexiva."},
+      {q:"¿Qué característica definió al 'nuevo Hollywood'?",opts:["Mayor libertad creativa y ruptura de tabúes","Cine exclusivamente infantil","Regreso al blanco y negro","Control férreo de los estudios"],ans:0,exp:"El Nuevo Hollywood (finales 60-años 70) surgió cuando el código Hays de autocensura se abolió (1968) y los estudios, en crisis, dieron poder a directores jóvenes formados en la nouvelle vague. Coppola, Scorsese, Spielberg y Kubrick filmaron con libertad temática y formal sin precedentes."},
+      {q:"¿Qué película marcó el inicio del modelo blockbuster?",opts:["Star Wars","Jaws","Top Gun","Jurassic Park"],ans:1,exp:"Tiburón (Jaws, Spielberg, 1975) estableció el modelo blockbuster: estreno simultáneo en miles de salas (en vez del estreno progresivo), campaña publicitaria televisiva masiva y mercadotecnia de producto (juguetes, camisetas). George Lucas con Star Wars (1977) perfeccionó el modelo añadiendo el merchandising sistemático."},
+      {q:"¿Qué dos innovaciones permitieron la reinvención de la radio durante la Guerra Fría?",opts:["Transistorización y frecuencia modulada","Estéreo y digitalización","Podcast y streaming","Radio por satélite y cable"],ans:0,exp:"El transistor (1947) hizo los radios portátiles, baratos y personales: los adolescentes podían escuchar en su cuarto sin que sus padres lo supieran. La FM ofreció calidad de sonido muy superior a la AM, perfecta para música. Juntos, convirtieron la radio en el medio de los jóvenes y del rock."},
+      {q:"¿Qué formato radiofónico surgió del hábito matutino de escucha?",opts:["Talk show","Programa despertador","Radiofórmula","Serial radiofónico"],ans:1,exp:"El 'morning show' o programa despertador surgió cuando los hábitos de escucha revelaron que el mayor pico de audiencia era entre las 7 y las 9 de la mañana. Un presentador energético, música, noticias breves y tiempo metereológico: la fórmula se convirtió en el slot más valioso de la radio comercial."},
+      {q:"¿Qué inspiró el nacimiento del formato Top 40?",opts:["La televisión","La repetición compulsiva de canciones en jukebox","La prensa musical","La radio pública"],ans:1,exp:"Todd Storz observó en 1951 que los clientes de los bares elegían repetidamente las mismas canciones en el jukebox. Dedujo que a la gente le gustaba escuchar lo que ya conocía. El formato Top 40 —las mismas 40 canciones rotando continuamente— nació de esa observación conductista."},
+      {q:"¿Qué tendencia marcó la radio a partir de los años 60?",opts:["Generalismo absoluto","Especialización temática","Eliminación de música","Fin de los informativos"],ans:1,exp:"La televisión se quedó con la audiencia generalista. La radio respondió especializándose: radio de noticias (all-news), radio de jazz, radio de rock, radio clásica, radio deportiva. Cada emisora apuntaba a un segmento demográfico concreto, anticipando la fragmentación de audiencias que hoy caracteriza todos los medios."},
+      {q:"¿Qué fenómeno impulsó la radio conservadora en EE. UU.?",opts:["La guerra de Vietnam","El éxito de Rush Limbaugh","La caída del Muro","La crisis del petróleo"],ans:1,exp:"Rush Limbaugh lanzó su programa nacional de talk radio en 1988. Su éxito (20 millones de oyentes en los años 90) demostró que había una audiencia enorme para el comentario político conservador en radio AM. Su modelo fue imitado por cientos de locutores y definió la radio política americana durante décadas."},
+      {q:"¿Qué rasgo definió la crisis de la prensa tras la llegada de la televisión?",opts:["Competencia por la publicidad y concentración empresarial","Aumento de lectores","Desaparición de tabloides","Fin del periodismo de investigación"],ans:0,exp:"La televisión robó a la prensa los anunciantes locales (especialmente las tiendas que antes llenaban páginas de periódico con sus ofertas). Para sobrevivir, los periódicos se concentraron: en muchas ciudades americanas pasó de haber 5-6 periódicos a uno o dos. La concentración empresarial fue la respuesta a la crisis publicitaria."},
+      {q:"¿Qué diario alemán definió el sensacionalismo de posguerra?",opts:["Der Spiegel","Bild","Die Welt","Süddeutsche Zeitung"],ans:1,exp:"Bild (fundado en 1952 por Axel Springer) es el tabloide más vendido de Europa. Con titulares enormes, fotos impactantes, lenguaje simple y opiniones contundentes, definió el periodismo popular alemán de posguerra. Su modelo era una mezcla del Daily Mirror británico y el sensacionalismo americano."},
+      {q:"¿Qué rasgo caracterizó a The Sun bajo Murdoch?",opts:["Periodismo de investigación","Sensacionalismo sexual y escándalos","Neutralidad política","Enfoque cultural"],ans:1,exp:"Rupert Murdoch compró The Sun en 1969 y lo relanzó como tabloide de masas con la famosa 'Page 3' (foto de mujer semidesnuda en la página tres), titulares de doble sentido y apoyo político oscilante (según conveniencia) a laboristas o conservadores. El modelo fue brutalmente rentable durante décadas."},
+      {q:"¿Qué modelo adoptó la prensa de calidad ante la televisión?",opts:["Sensacionalismo","Reforzar su papel como contrapoder y periodismo de calidad","Abandonar la información internacional","Reducir extensión y análisis"],ans:1,exp:"The New York Times, Le Monde, The Guardian o El País apostaron por lo que la televisión no podía ofrecer: análisis en profundidad, periodismo de investigación, secciones culturales extensas y cobertura internacional detallada. La calidad como diferenciación estratégica frente al inmediatismo televisivo."},
+    ]
+  },
+  {
+    id:9, title:"Propaganda y persuasión en la Guerra Fría", sub:"",
+    qs:[
+      {q:"¿Qué dos factores explican el auge de la publicidad en los años 50 y 60?",opts:["Auge económico y expansión de la televisión","Crisis económica y radio","Guerra de Corea y prensa","Fin del cine clásico y radiofórmula"],ans:0,exp:"El boom económico de posguerra creó una clase media con poder adquisitivo y hambre de consumo. La televisión ofreció un escaparate visual sin precedentes para los productos. La publicidad televisiva combinó imagen, sonido y movimiento para crear deseo de forma mucho más eficaz que cualquier medio anterior."},
+      {q:"¿Qué relación se estableció entre televisión y publicidad durante la Guerra Fría?",opts:["Competencia directa","Relación simbiótica: la publicidad financiaba la TV","La TV rechazó la publicidad","La publicidad desapareció de la TV"],ans:1,exp:"La televisión comercial americana era esencialmente un vehículo para entregar audiencias a los anunciantes. Los programas eran el anzuelo; la publicidad, el negocio real. Esta simbiótica financió el desarrollo tecnológico de la TV y definió su lógica de programación (maximizar audiencia para maximizar ingresos publicitarios)."},
+      {q:"¿Quién formuló la USP (unique selling proposition)?",opts:["Bill Bernbach","Rosser Reeves","David Ogilvy","Leo Burnett"],ans:1,exp:"Rosser Reeves (Ted Bates & Company) publicó Reality in Advertising (1961) donde formuló la USP: cada anuncio debe proponer al consumidor un beneficio único y diferenciador, que la competencia no pueda ofrecer, suficientemente atractivo para mover masas. Era publicidad racional y repetitiva."},
+      {q:"¿Qué caracteriza a la USP (unique selling proposition)?",opts:["Destacar un beneficio único y diferenciador del producto","Atribuir valores emocionales","Uso de humor y complicidad","Evitar comparaciones"],ans:0,exp:"La USP es esencialmente racional: identifica una característica objetiva del producto (la más dura, la más blanca, la que dura más) y la comunica con claridad y repetición. No necesita historia ni emoción: solo el beneficio concreto, dicho de forma memorable."},
+      {q:"¿Qué ejemplo clásico ilustra la USP?",opts:["'Think different'","'Se derriten en tu boca, no en tu mano' (M&Ms)","'Just do it'","'Because you're worth it'"],ans:1,exp:"'Se derriten en tu boca, no en tu mano' describe una característica técnica objetiva (la cobertura de azúcar de los M&Ms). Es el modelo perfecto de USP: un beneficio único (no manchas las manos), diferenciador (ningún otro caramelo lo prometía igual), memorable y verificable."},
+      {q:"¿Qué aportó David Ogilvy con la imagen de marca?",opts:["Humor y ruptura","Atribuir valores intangibles y emocionales a la marca","Comparaciones directas","Testimonios de usuarios"],ans:1,exp:"Ogilvy (Ogilvy & Mather) argumentó que los consumidores no solo compran productos sino identidades. El Hombre de la Camisa Hathaway (con parche en el ojo) o el Baron Schweppes no vendían características técnicas: vendían estilo, sofisticación, pertenencia a un mundo aspiracional."},
+      {q:"¿Qué estrategia caracteriza a Bill Bernbach?",opts:["Racionalismo extremo","Comparaciones agresivas","Creatividad, complicidad y juego con el público","Eliminación del humor"],ans:2,exp:"Bernbach (DDB) lanzó la revolución creativa de los años 60. La campaña 'Think Small' de Volkswagen fue su obra maestra: humor, ironía y respeto al consumidor, en el polo opuesto al tono imperativo y condescendiente de la publicidad racionalista. Bernbach trató al público como inteligente."},
+      {q:"¿Qué provocó el regreso a strategies conservadoras en los 70?",opts:["Auge de la radio","Crisis económica de 1973","Fin de la televisión","Prohibición de la publicidad creativa"],ans:1,exp:"La crisis del petróleo de 1973 disparó la inflación y contrajo el consumo. Los anunciantes, asustados, volvieron a confiar en lo seguro: argumentos racionales, testimonios de expertos, USPs claras. La creatividad parecía un lujo en tiempos de crisis; las agencias prefirieron la seguridad de los resultados medibles."},
+      {q:"¿Qué objetivo tenía la propaganda soviética en el 'tercer mundo' durante la Guerra Fría?",opts:["Promover el capitalismo","Fomentar el consumo","Presentar el marxismo como alternativa al colonialismo occidental","Impulsar la televisión soviética"],ans:2,exp:"La URSS financió partidos comunistas, movimientos de liberación nacional y medios de comunicación en África, Asia y América Latina. El argumento era atractivo: el capitalismo occidental es el heredero del colonialismo; el marxismo-leninismo ofrece una vía de desarrollo independiente y antiimperialista."},
+      {q:"¿Qué argumento usó la URSS para desacreditar a EE. UU. durante la Guerra Fría?",opts:["Su cine comercial","La segregación racial","La guerra de Corea","El gasto militar"],ans:1,exp:"La segregación racial en EE. UU. (especialmente visible en los años 50 y 60, antes del Civil Rights Act de 1964) fue el argumento propagandístico más eficaz de la URSS. '¿Cómo puede EE. UU. hablar de libertad cuando maltrata a sus ciudadanos negros?' Era un punto débil genuino y la URSS lo explotó sistemáticamente."},
+      {q:"¿Qué organización estadounidense agrupó a artistas conservadores?",opts:["American Film Institute","Motion Picture Alliance for the Preservation of American Ideals","Hollywood Freedom League","Screen Actors Guild"],ans:1,exp:"La MPA (1944) fue fundada por John Wayne, Walt Disney, Gary Cooper y otros artistas conservadores que veían una infiltración comunista en Hollywood. Colaboraron activamente con el HUAC (Comité de Actividades Antiamericanas) denunciando a colegas, lo que desencadenó las listas negras."},
+      {q:"¿Qué fenómeno político impulsó la censura y persecución ideológica en Hollywood durante la Guerra Fría?",opts:["La guerra de Vietnam","La 'caza de brujas' del senador McCarthy","La crisis del petróleo","La llegada de la TV"],ans:1,exp:"El senador Joseph McCarthy (Wisconsin) acusó desde 1950 a cientos de personas en el gobierno, el ejército y la cultura de ser agentes soviéticos. Hollywood sufrió duramente: los 'Diez de Hollywood' fueron encarcelados por negarse a declarar; cientos más fueron puestos en listas negras y perdieron su trabajo."},
+      {q:"¿Qué emisoras occidentales emitían hacia la URSS?",opts:["Voice of America, Radio Liberty, Radio Free Europe","CNN, CBS, ABC","BBC One, ITV, Sky","Radio France, RAI, TVE"],ans:0,exp:"Voice of America (VOA, desde 1942), Radio Free Europe (RFE, desde 1950, para Europa del Este) y Radio Liberty (RL, desde 1953, dirigida específicamente a la URSS) formaban el arco de emisoras de propaganda occidental. Las financiaba la CIA hasta 1972; después, el Congreso directamente."},
+      {q:"¿Qué factor explica el éxito de estas emisoras en la URSS?",opts:["Su contenido musical","El descrédito de los medios oficiales soviéticos","Su emisión en ruso perfecto","Su carácter clandestino"],ans:1,exp:"Los ciudadanos soviéticos sabían que Pravda y la radio estatal mentían o callaban. Cuando Radio Liberty informó del desastre de Chernóbil (1986) días antes de que los medios soviéticos lo reconocieran, su credibilidad se disparó. El descrédito del sistema propio era el mejor aliado de las emisoras occidentales."},
+      {q:"¿Qué enseñó la guerra de Vietnam sobre la propaganda?",opts:["Que la censura total es eficaz","Que los periodistas deben ser controlados por completo","Que la TV no influye en la opinión pública","Que la contradicción entre propaganda oficial e imágenes reales destruye la credibilidad"],ans:3,exp:"Vietnam fue la primera 'guerra televisada'. Los corresponsales filmaron cadáveres, atrocidades (masacre de My Lai) y la derrota real. El contraste entre los comunicados oficiales optimistas del Pentágono y las imágenes del telediario destruyó la credibilidad del gobierno y movilizó a la opinión pública contra la guerra."},
+    ]
+  },
+  {
+    id:10, title:"La comunicación tras la Guerra Fría", sub:"",
+    qs:[
+      {q:"¿Qué tecnología permitió la popularización de la informática doméstica?",opts:["La radio digital","El ordenador personal","El fax","La televisión por cable"],ans:1,exp:"El microprocesador Intel 4004 (1971) y luego el 8080 (1974) hicieron posible ordenadores del tamaño de un electrodoméstico. Hasta entonces, los ordenadores ocupaban habitaciones enteras y costaban millones. El PC democratizó la computación y preparó el terreno para Internet."},
+      {q:"¿Qué dispositivo impulsó la entrada de la informática en los hogares?",opts:["El Apple I","El Commodore PET","El IBM 360","La Atari 2600"],ans:3,exp:"Aunque históricamente el Commodore PET o el Apple II introdujeron el concepto de PC, en el contexto de tu clase se considera que la Atari 2600 (1977) fue el dispositivo clave que familiarizó masivamente a los hogares con las pantallas interactivas y la tecnología de microprocesadores, impulsando la adopción de la informática doméstica."},
+      {q:"¿Qué proyecto es el antecedente directo de Internet?",opts:["NASA Net","ARPANET","EuroNet","DataWeb"],ans:1,exp:"ARPANET (Advanced Research Projects Agency Network) fue creada en 1969 por el Departamento de Defensa de EE. UU. para conectar ordenadores universitarios y militares de forma descentralizada, capaz de sobrevivir a un ataque nuclear. La primera conexión fue entre UCLA y el Stanford Research Institute en octubre de 1969."},
+      {q:"¿Qué aportó Tim Berners-Lee?",opts:["El primer buscador","El primer blog","El protocolo HTTP","El primer videojuego online"],ans:2,exp:"Berners-Lee, físico del CERN, inventó en 1989-1991 la World Wide Web: el protocolo HTTP para transferir hipertexto, el lenguaje HTML para crear páginas y el sistema de URLs para localizarlas. Fue un regalo al mundo: no patentó nada. Sin su invención, Internet seguiría siendo solo una red de texto para especialistas."},
+      {q:"¿Qué caracterizaba a la web 1.0?",opts:["Consulta de información y páginas estáticas","Interacción social","Contenido generado por usuarios","Streaming"],ans:0,exp:"La web 1.0 (1991-2004 aproximadamente) era de 'solo lectura': el usuario accedía a páginas creadas por organizaciones o individuos expertos, pero no podía publicar ni interactuar. Era la biblioteca digital: puedes leer, no puedes escribir en las paredes."},
+      {q:"¿Qué define a la web 2.0?",opts:["Navegación lenta","Papel activo del usuario y dimensión social","Ausencia de redes sociales","Solo contenido profesional"],ans:1,exp:"El término 'web 2.0' (acuñado por Tim O'Reilly en 2004) describe la web participativa: blogs, wikis, YouTube, redes sociales. El usuario pasó de consumidor a productor. Esta revolución del 'user generated content' cambió radicalmente el equilibrio de poder entre medios y audiencias."},
+      {q:"¿Qué red social fue el primer gran éxito global?",opts:["Facebook","Myspace","Twitter","Instagram"],ans:1,exp:"Myspace (fundada en 2003) fue la primera red social en alcanzar escala global, con 100 millones de usuarios en 2006. Su éxito fue especialmente notable en el ámbito musical (las bandas podían tener su perfil y compartir canciones). Facebook la superó en 2008 y Myspace nunca se recuperó."},
+      {q:"¿Qué caracteriza a los intermediarios mediáticos?",opts:["Son organismos públicos","Dominan el acceso a la información (Google, Facebook)","No influyen en la visibilidad","No gestionan datos"],ans:1,exp:"Google, Facebook/Meta, Twitter/X y similares controlan qué contenidos ven los usuarios mediante algoritmos opacos. Un periódico puede publicar una noticia excelente, pero si Google no la indexa bien o Facebook no la amplifica, nadie la leerá. Los intermediarios tienen más poder sobre la distribución que los propios creadores de contenido."},
+      {q:"¿Qué error cometieron los medios en los 90 al entrar en Internet?",opts:["No usar imágenes","Ofrecer contenido gratuito esperando ingresos publicitarios","No crear apps","No usar redes sociales"],ans:1,exp:"En los años 90, los periódicos digitalizaron sus contenidos y los ofrecieron gratis, asumiendo que los ingresos publicitarios online compensarían. No fue así: los anunciantes pagaban mucho menos online que en papel. Para 2010, los periódicos habían perdido décadas de ingresos de suscripción sin construir un modelo alternativo viable."},
+      {q:"¿Qué problema generó la publicidad nativa?",opts:["Aumento de lectores","Daño a la reputación del medio","Mejora de la transparencia","Eliminación de la publicidad"],ans:1,exp:"La publicidad nativa (contenido patrocinado con aspecto de noticia) generó ingresos a corto plazo pero dañó la credibilidad a largo plazo. Cuando los lectores descubren que lo que parecía un artículo periodístico es en realidad publicidad disfrazada, la confianza en el medio se resiente. El dinero fácil tenía un coste reputacional."},
+      {q:"¿Qué modelo adoptan medios como The Guardian?",opts:["Solo publicidad","Cierre de la edición digital","Pago obligatorio","Acceso gratuito + aportaciones voluntarias de socios"],ans:3,exp:"The Guardian mantiene todo su contenido gratuito pero solicita al final de los artículos contribuciones voluntarias de los lectores. Este modelo de membresía voluntaria ha resultado sorprendentemente exitoso: millones de lectores pagan sin obligación porque sienten que el periodismo de calidad merece sostenerse."},
+      {q:"¿Qué medio se convirtió en organización sin ánimo de lucro?",opts:["The New York Times","El País","The Salt Lake Tribune","The Washington Post"],ans:2,exp:"The Salt Lake Tribune (Utah) se convirtió en 2019 en el primer periódico diario importante de EE. UU. en adoptar el modelo de organización sin ánimo de lucro. Sin obligación de generar beneficios para accionistas, puede centrarse en su misión periodística y buscar financiación de fundaciones y donantes."},
+      {q:"¿Qué factor explica la crisis de reputación del periodismo?",opts:["Escándalos y coberturas deficientes","Falta de tecnología","Exceso de lectores","Prohibición de redes sociales"],ans:0,exp:"Escándalos como el de Jayson Blair (New York Times, 2003, que inventaba noticias), la cobertura de las armas de destrucción masiva en Iraq (que los grandes medios creyeron sin verificar) o los hackeos de teléfonos del News of the World de Murdoch (cerrado en 2011) dañaron profundamente la credibilidad del periodismo institucional."},
+      {q:"¿Qué caso dañó gravemente la credibilidad de El Mundo?",opts:["Caso GAL","La teoría conspirativa del 11-M","Caso Filesa","Caso Bárcenas"],ans:1,exp:"El diario El Mundo difundió durante años teorías que sugerían que el atentado del 11 de marzo de 2004 en Madrid fue un complot del gobierno socialista (o incluso de ETA con el PSOE). Cuando ninguna de estas teorías resistió el escrutinio judicial, el periódico sufrió un grave daño reputacional y una fuerte pérdida de lectores."},
+      {q:"¿Qué cambio introdujo Netflix en el consumo audiovisual?",opts:["Pago por capítulo","Streaming bajo suscripción y temporadas completas desde el estreno","Emisión semanal obligatoria","Solo cine clásico"],ans:1,exp:"Netflix (que inició el streaming en 2007 y produjo contenido original desde 2013 con House of Cards) introdujo el 'binge watching': publicar temporadas completas de una vez para que el espectador consumiera a su ritmo. Esto eliminó la lógica tradicional del 'gancho semanal' y el control del broadcaster sobre cuándo se consume."},
+    ]
+  }
+];
+
+const devQuestions = [
+  {n:1,q:"¿Cómo los cambios tecnológicos y sociales del siglo XIX hicieron posible la prensa de masas?",a:`<p><strong>Tecnología:</strong> La máquina de vapor aplicada a la imprenta (1814) multiplicó la producción de ejemplares, reduciendo el coste unitario drásticamente. La linotipia (1884) y la rotativa permitieron tiradas de decenas de miles de ejemplares por hora. El telégrafo (1837) aceleró la circulación de noticias a escala continental.</p><p><strong>Sociedad:</strong> La industrialización concentró millones de personas en ciudades (urbanización), generando una demanda de información local. La escolarización obligatoria redujo el analfabetismo y creó un público lector masivo. El sufragio masculino dio al ciudadano ordinario un interés genuino en la política. El ferrocarril hizo posible la distribución nacional en horas.</p><p><strong>Economía:</strong> La Revolución Industrial generó excedentes de producción que necesitaban ser vendidos; la publicidad necesitaba medios de masas, y los medios de masas necesitaban publicidad para financiarse. La sinergia entre estos factores es inseparable.</p>`},
+  {n:2,q:"Compara la prensa de élite del siglo XVIII con la prensa popular del XIX.",a:`<p><strong>Prensa de élite:</strong> Dirigida a la burguesía letrada y la aristocracia. Precio alto (un chelín en Inglaterra). Lenguaje literario, denso, propio del ensayo político. Distribuida por suscripción previa. Financiada por partidos políticos o mecenas. Función: debate de ideas y legitimación del poder.</p><p><strong>Prensa popular:</strong> Dirigida a las clases trabajadoras urbanas. Precio de un centavo o penique. Lenguaje simple, directo, narrativo. Vendida en la calle por voceadores. Financiada por publicidad. Función: información práctica, entretenimiento y creación de comunidad lectora.</p><p><strong>Ruptura clave:</strong> La prensa popular separó la información del comentario político (al menos en teoría) y convirtió al lector en consumidor en lugar de en suscriptor comprometido ideológicamente. También universalizó el acceso a la información pública.</p>`},
+  {n:3,q:"Analiza el papel de la publicidad en el surgimiento de la prensa popular.",a:`<p>La relación entre prensa popular y publicidad es simbiótica: cada uno necesita al otro para existir.</p><p>La prensa popular bajó el precio al mínimo (un centavo) para maximizar lectores. Pero alguien tenía que cubrir los costes de producción: la publicidad. Cuantos más lectores, más valiosos los anuncios; cuanto más barato el periódico, más lectores.</p><p>La Revolución Industrial creó a su vez la necesidad de publicidad: fábricas con producción masiva necesitaban crear demanda para sus productos idénticos. La prensa popular ofrecía el escaparate perfecto: llegaba a las masas que tenían, por primera vez, dinero para consumir.</p><p>Benjamin Day con The Sun (1833) fue el primero en formalizar este modelo: cobrar poco al lector y mucho al anunciante. Este círculo virtuoso (o vicioso, según se mire) sigue siendo el modelo básico de la mayor parte de los medios de comunicación actuales, incluidos los digitales.</p>`},
+  {n:4,q:"Explica las innovaciones narrativas introducidas por los penny papers.",a:`<p>Los penny papers revolucionaron el periodismo con tres innovaciones narrativas fundamentales:</p><p><strong>1. La noticia de proximidad:</strong> Frente al artículo político abstracto, los penny papers cubrieron hechos concretos y cercanos: crímenes, incendios, sucesos del barrio. Crearon el concepto moderno de 'noticia' como acontecimiento verificable y localizado.</p><p><strong>2. El estilo directo:</strong> Párrafos cortos, frases simples, vocabulario accesible. El objetivo era que cualquiera con educación elemental pudiera leer y comprender. Esto contrasta con la prosa elaborada de la prensa de élite.</p><p><strong>3. El reportero como testigo:</strong> James Gordon Bennett cubrió personalmente crímenes (el caso de Helen Jewett, 1836). Nació la figura del periodista que va al lugar de los hechos, que pregunta, que describe. No solo opina: narra lo que ha visto.</p>`},
+  {n:5,q:"Describe cómo la Guerra Civil estadounidense influyó en la evolución del periodismo.",a:`<p>La Guerra Civil (1861-1865) fue el primer conflicto masivamente cubierto por la prensa moderna. Sus consecuencias para el periodismo fueron estructurales:</p><p><strong>El telégrafo y el lead:</strong> Los corresponsales enviaban sus despachos por telégrafo, que cobraba por palabra y podía cortarse. Aprendieron a poner lo más importante al principio: quién, qué, cuándo, dónde. Si la transmisión se cortaba, el editor ya tenía lo esencial. Nació el lead o entradilla.</p><p><strong>La pirámide invertida:</strong> Como consecuencia del lead, los artículos se estructuraron de mayor a menor importancia (en vez del relato cronológico previo). El editor podía cortar por cualquier punto sin perder lo esencial. Esta estructura sigue siendo el estándar del periodismo informativo.</p><p><strong>La brevedad y la concisión:</strong> El coste del telégrafo penalizaba la verbosidad. Nació un estilo periodístico más económico, directo y eficiente, diferente del periodismo narrativo y literario previo.</p>`},
+  {n:6,q:"Compara el sensacionalismo de Pulitzer y Hearst.",a:`<p><strong>Similitudes:</strong> Ambos usaron titulares grandes, ilustraciones impactantes, cobertura de crímenes y escándalos, precios bajos y campañas de agitación social. Ambos vieron la prensa como arma de poder político y como negocio de masas. Ambos contribuyeron a la guerra hispano-cubana de 1898 con una cobertura belicista.</p><p><strong>Diferencias:</strong> Pulitzer (inmigrante húngaro, llegó pobre a EE. UU.) tenía una agenda de reforma social genuina: el New York World denunció la corrupción, defendió a los inmigrantes y apoyó causas obreras. El sensacionalismo era también un vehículo de denuncia.</p><p>Hearst (hijo de millonario californiano) era más desvergonzadamente entretenedor. Su 'periodismo de acción' (fabricar noticias, organizar el rescate de Cisneros) era puro espectáculo. Menos ideológico que Pulitzer, más show business.</p><p><strong>Impacto cultural:</strong> Los dos juntos definieron el modelo de prensa popular que dominó el siglo XX y del que aún hoy son deudores los tabloides digitales.</p>`},
+  {n:7,q:"Explica la respuesta de Adolph Ochs al sensacionalismo y analiza su modelo.",a:`<p>Adolph Ochs compró el New York Times en 1896 cuando el periódico estaba casi en quiebra, aplastado por la competencia de Pulitzer y Hearst. Su respuesta fue radicalmente contraria al sensacionalismo.</p><p><strong>Estrategia diferencial:</strong> 'All the news that's fit to print' como lema resumía su apuesta: no toda noticia merece publicarse, solo la que sea veraz, importante y digna. Esto implicaba rechazar el crimen sensacional, las campañas de agitación y la manipulación emocional.</p><p><strong>Contenidos:</strong> Política internacional, economía, cultura, ciencia. El NYT apostó por la profundidad y la verificación frente a la velocidad y el impacto. Creó suplementos especializados (libros, viajes, arte).</p><p><strong>Modelo económico:</strong> Bajó el precio a un centavo (para competir en circulación y atraer publicidad) pero mantuvo la seriedad de contenidos. Demostró que la calidad periodística y la rentabilidad no eran incompatibles.</p><p><strong>Legado:</strong> El modelo del NYT definió el concepto de 'prensa de referencia' o 'prensa de calidad' que seguirían Le Monde, The Guardian, El País o La Repubblica en el siglo XX.</p>`},
+  {n:8,q:"Compara los modelos radiofónicos estadounidense y británico.",a:`<p><strong>Modelo estadounidense (comercial):</strong> La radio fue desde el principio un negocio privado. Empresas como NBC (1926) y CBS (1927) construyeron cadenas nacionales financiadas por publicidad. El criterio de programación era la audiencia máxima. El Estado solo regulaba el espectro (Federal Radio Commission, 1927). El resultado: entretenimiento de masas de alta calidad, pero con poca atención a minorías culturales o formación ciudadana.</p><p><strong>Modelo británico (servicio público):</strong> La BBC (1927) fue concebida por John Reith como servicio público con misión educativa, informativa y cultural. Financiada por canon (tasa anual de los poseedores de receptor), sin publicidad. Su primer mandato: 'inform, educate, entertain'. El resultado: contenidos de mayor ambición cultural pero a veces percibidos como elitistas o paternalistas.</p><p><strong>Tensión de fondo:</strong> Ambos modelos reflejan concepciones distintas de la democracia. El modelo americano confía en el mercado para determinar qué quiere el público. El modelo europeo asume que hay un 'bien público' en materia de información y cultura que el mercado solo no garantizaría.</p>`},
+  {n:9,q:"Analiza el papel de la radio como herramienta de propaganda en el período de entreguerras.",a:`<p>La radio fue el primer medio capaz de llegar simultáneamente a millones de personas en sus hogares, con la voz directa del líder. Esto la convirtió en la herramienta de propaganda más poderosa de su tiempo.</p><p><strong>Los regímenes totalitarios:</strong> Hitler y Goebbels financiaron el Volksempfänger (receptor del pueblo, precio subsidiado) para asegurar que cada hogar alemán pudiera escuchar al Führer. Los discursos de Nuremberg, transmitidos en directo, creaban la sensación de presencia en el mitin sin moverse de casa. Mussolini, Stalin y Franco aplicaron estrategias similares.</p><p><strong>Las democracias:</strong> Roosevelt usó los 'fireside chats' (conversaciones junto a la chimenea, 1933-1944) para crear una conexión íntima y personal con los americanos durante la Depresión. El tono era radicalmente diferente al demagógico europeo: calmado, explicativo, como un padre de familia.</p><p><strong>Los demagogos civiles:</strong> El padre Coughlin en EE. UU. demostró que un particular podía construir desde la radio una audiencia masiva para discursos antisemitas. La radio democratizaba la propaganda, no solo la estatalizaba.</p>`},
+  {n:10,q:"Explica cómo la crisis del 29 impulsó la espectacularización del cine.",a:`<p>La Gran Depresión (1929-1939) afectó al cine de dos maneras opuestas que se resolvieron en la misma dirección: el espectáculo.</p><p><strong>El reto:</strong> Las familias en crisis recortaron gastos de ocio. La radio (ya pagada) era gratuita en el hogar. ¿Por qué gastar dinero en ir al cine?</p><p><strong>La respuesta tecnológica:</strong> El cine sonoro (The Jazz Singer, 1927) ya había dado un primer salto espectacular. El Technicolor tricomponente (desde 1932) añadió el color en una época en que la radio era solo audio y la televisión (cuando existía) era en blanco y negro. Hollywood ofrecía algo único: imagen, sonido y color.</p><p><strong>Los géneros de evasión:</strong> Los musicales (Fred Astaire, Busby Berkeley) con sus coreografías elaboradas, los films de gánsteres (una catarsis sobre la violencia real de la era Prohibición) y las comedias sofisticadas (screwball comedies) ofrecían mundos de lujo y aventura en contraste con la miseria de la realidad.</p><p><strong>El sistema de estudios:</strong> Los grandes estudios (MGM, Paramount, Warner, RKO, Fox) invirtieron en estrellas (Greta Garbo, Clark Gable, Cary Grant) cuya sola presencia garantizaba taquilla. La star system era propaganda del espectáculo.</p>`},
+  {n:11,q:"Compara la propaganda mecanicista, blanca y negra.",a:`<p><strong>Propaganda mecanicista:</strong> Basada en el modelo conductista de estímulo-respuesta. Asume que el mensaje produce efectos predecibles e iguales en toda la audiencia, independientemente del contexto social o cultural. Fue el modelo dominante en el III Reich (Goebbels) y en los primeros estudios académicos de propaganda. Su error: subestima la capacidad crítica del receptor y las mediaciones sociales.</p><p><strong>Propaganda blanca:</strong> La fuente es conocida (la BBC, Voice of America). La información es verificable (no miente sobre los hechos). Pero selecciona, enmarca y presenta los hechos para producir la respuesta emocional deseada. Es la más creíble a largo plazo porque cuando miente, pierde su activo principal: la confianza. Usada principalmente por los aliados en la IIGM.</p><p><strong>Propaganda negra:</strong> Oculta su origen y finge ser del propio enemigo. Las emisoras de Sefton Delmer fingían ser nazis para desmoralizar a los alemanes. Es la más efectiva a corto plazo pero la más frágil: si se descubre la fuente real, pierde toda credibilidad. También la más éticamente cuestionable.</p><p><strong>Contexto de uso:</strong> La mecanicista se usó internamente en estados autoritarios; la blanca en las democracias en guerra; la negra en operaciones especiales de inteligencia en todos los bandos.</p>`},
+  {n:12,q:"Analiza el papel del cine como herramienta propagandística en la Segunda Guerra Mundial.",a:`<p><strong>Alemania:</strong> Leni Riefenstahl (El triunfo de la voluntad, 1935; Olympia, 1938) creó el modelo del documental propagandístico épico. Pero con las derrotas militares, Goebbels viró hacia el entretenimiento escapista (comedias, musicales, films históricos) para mantener la moral sin informar de la realidad. Kolberg (1945) se rodó mientras Berlín era bombardeado.</p><p><strong>Reino Unido:</strong> El cine británico apostó por el realismo documental (Humphrey Jennings, Listen to Britain, 1942) y los dramas de resistencia civil. El mensaje era la entereza del pueblo común, no la gloria militar.</p><p><strong>Estados Unidos:</strong> Hollywood movilizó toda su maquinaria industrial. Frank Capra dirigió Why We Fight (siete documentales explicativos). Los grandes estudios produjeron dramas bélicos, comedias de reclutamiento y films de espionaje. El gobierno (OWI) trabajó directamente con los estudios. Disney produjo cortos de animación para el ejército.</p><p><strong>Diferencia clave:</strong> EE. UU. produjo más propaganda cinematográfica que nadie, pero en un sistema mixto donde los creadores tenían más autonomía. Alemania tenía control total pero perdió el pulso cuando la realidad desmintió la propaganda.</p>`},
+  {n:13,q:"Explica cómo la televisión se consolidó como medio de masas en los años 50.",a:`<p><strong>Factores económicos:</strong> El boom de posguerra elevó los salarios de la clase media en EE. UU. (y algo después en Europa). Los televisores bajaron de 300-500 a 100-200 dólares. En 1960, el 90% de los hogares americanos tenían TV; habían tardado 5 años en alcanzar lo que la radio tardó 30.</p><p><strong>Modelo americano (comercial):</strong> NBC, CBS y ABC financiaban la programación con publicidad. Los sponsors patrocinaban programas enteros (The Kraft Television Theatre, The Camel News Caravan). La lógica: maximizar audiencia para maximizar ingresos publicitarios. El criterio de éxito era el rating.</p><p><strong>Modelo europeo (servicio público):</strong> BBC, RAI, ARD, ORTF, TVE eran organismos públicos con misión educativa y cultural. Financiados por el Estado o por canon. Sin publicidad (o con publicidad limitada). Criterio de éxito: cumplimiento de la misión, no audiencia máxima. El monopolio estatal duró en muchos países europeos hasta los años 80.</p><p><strong>La gran diferencia:</strong> En EE. UU. la TV fue desde el principio un negocio. En Europa fue un servicio. Esta diferencia estructural explica la distinta evolución de los contenidos y la regulación en ambos continentes.</p>`},
+  {n:14,q:"Describe los primeros formatos televisivos de éxito en EE. UU. y explica el dominio de la sitcom.",a:`<p><strong>Los primeros formatos:</strong> La televisión americana de los años 40 y 50 copió directamente de la radio y el teatro. Los programas de variedades (Ed Sullivan Show, Milton Berle) eran exactamente el vodevil filmado: presentador, sketches, música, actos especiales. Los teletheatres (antologías dramáticas como Playhouse 90) eran teatro retransmitido. Los informativos (See It Now de Murrow) copiaron el formato radiofónico.</p><p><strong>La sitcom:</strong> I Love Lucy (CBS, 1951) definió el género: personajes fijos en situaciones domésticas reconocibles, humor basado en malentendidos y enredos, resolución feliz en 30 minutos. Era perfecta para la televisión por varias razones:</p><p>1. Creaba audiencia fiel (los espectadores querían ver qué le pasaba a Lucy y Ricky cada semana). 2. Era barata de producir (estudio fijo, elenco reducido). 3. Se podía reemitir indefinidamente (Lucille Ball insistió en grabar en película en vez de kinescope, lo que permitió las reposiciones). 4. Reflejaba y reforzaba los valores familiares de la era Eisenhower.</p><p>La sitcom se convirtió en el género más rentable de la televisión y sigue siéndolo (The Big Bang Theory, Friends, Seinfeld).</p>`},
+  {n:15,q:"Compara la ficción televisiva en la BBC con la televisión estadounidense.",a:`<p><strong>BBC:</strong> La misión de John Reith marcó la ficción televisiva británica: adaptar clásicos de la literatura (Shakespeare, Dickens, Austen), producir dramas originales de autor con ambición literaria, explorar temas sociales incómodos. The Wednesday Play (años 60) llevó a la TV problemas como el racismo, el desempleo o la violencia doméstica. No había presión de ratings; el criterio era la calidad cultural.</p><p><strong>TV americana:</strong> El criterio dominante era la audiencia. La ficción debía entretener a la máxima audiencia posible para atraer publicidad. Las sitcoms de fórmula, los westerns (Gunsmoke, Bonanza) y las series de acción dominaban el prime time. Los temas controvertidos eran evitados para no alejar anunciantes.</p><p><strong>La convergencia:</strong> A partir de los años 80-90, la TV por cable (HBO desde 1972) liberó a la ficción americana de la tiranía del rating de masas. Los Sopranos (1999), The Wire (2002) o Mad Men (2007) adoptaron la ambición narrativa y la complejidad temática que había sido territorio de la BBC. La 'edad de oro de la TV' americana bebió del modelo europeo de autoría.</p>`},
+  {n:16,q:"Explica cómo la Guerra Fría transformó la propaganda en ambos bloques.",a:`<p>La Guerra Fría fue esencialmente una guerra por la legitimidad: ¿qué sistema —capitalismo liberal o comunismo soviético— ofrecía una vida mejor y un futuro más deseable? La batalla se libraba en las mentes y los corazones de los indecisos del Tercer Mundo y de los propios ciudadanos de cada bloque.</p><p><strong>Diferencia estructural:</strong> La URSS tenía un sistema totalitario de control mediático: Pravda, TASS, radio y TV estatales emitían un solo mensaje. EE. UU. tenía medios privados que no podía controlar directamente, lo que hizo su propaganda más compleja pero también más creíble.</p><p><strong>Instrumentos americanos:</strong> Voice of America, Radio Free Europe, Radio Liberty emitían hacia el bloque soviético. La CIA financió revistas culturales (Encounter en UK, Preuves en Francia) y congresos de intelectuales para mostrar la vitalidad cultural del Occidente liberal. El Plan Marshall también fue propaganda: la ayuda económica demostraba que el capitalismo funcionaba.</p><p><strong>Instrumentos soviéticos:</strong> Apoyo a partidos comunistas en todo el mundo, financiación de movimientos de liberación nacional, emisoras internacionales (Radio Moscú) y explotación de las contradicciones del sistema americano (segregación racial, desempleo).</p>`},
+  {n:17,q:"Analiza el papel de Hollywood en la propaganda estadounidense de la Guerra Fría.",a:`<p>Hollywood tuvo un papel ambiguo y conflictivo en la propaganda de la Guerra Fría: fue simultáneamente instrumento del gobierno, víctima de la persecución ideológica y espejo de la ansiedad social americana.</p><p><strong>La persecución:</strong> El HUAC (Comité de Actividades Antiamericanas) investigó a Hollywood desde 1947. Los 'Diez de Hollywood' (Dalton Trumbo, entre ellos) fueron encarcelados por negarse a delatar a colegas. Cientos fueron incluidos en listas negras. La autocensura fue masiva: cualquier tema social crítico fue evitado.</p><p><strong>El enemigo soviético en el cine:</strong> Los films de ciencia ficción de los 50 (La invasión de los ladrones de cuerpos, El día que paralizaron la Tierra) usaban la metáfora de la invasión alienígena para representar el miedo a la infiltración comunista. El thriller de espionaje (James Bond a partir de 1962) convirtió el conflicto en entretenimiento de masas.</p><p><strong>El cine como escaparate:</strong> El propio Hollywood, con sus estrellas y sus historias de éxito individual, era propaganda del American way of life. La abundancia de bienes de consumo en las películas americanas contrastaba con el gris ascetismo soviético.</p>`},
+  {n:18,q:"Describe las estrategias propagandísticas de la URSS durante la Guerra Fría.",a:`<p><strong>El argumento anticolonial:</strong> La URSS se presentó como aliada natural de los pueblos colonizados frente al imperialismo occidental. Financió movimientos de liberación en Vietnam, Angola, Mozambique, Cuba y decenas de países africanos y asiáticos. El marxismo-leninismo como ideología de la descolonización fue su mayor activo en el Tercer Mundo.</p><p><strong>Explotación de las contradicciones americanas:</strong> La segregación racial (especialmente las imágenes de violencia policial contra manifestantes negros en los años 50 y 60) fue el argumento propagandístico más eficaz. Radio Moscú y las publicaciones soviéticas amplificaron cada incidente racista americano. Era hipócrita (la URSS perseguía a sus propias minorías), pero efectivo.</p><p><strong>La cultura como propaganda:</strong> El ballet, la ópera, el circo soviético y los logros científicos (Sputnik, 1957; Yuri Gagarin, 1961) demostraban que el comunismo podía generar excelencia cultural y tecnológica. El éxito espacial soviético fue un golpe propagandístico devastador para EE. UU.</p><p><strong>Las emisoras internacionales:</strong> Radio Moscú emitía en decenas de idiomas. Sus periodistas extranjeros (a menudo simpatizantes de izquierda) producían una imagen del mundo desde la perspectiva soviética.</p>`},
+  {n:19,q:"Explica por qué la guerra de Vietnam es un punto de inflexión en la relación entre propaganda, periodismo y opinión pública.",a:`<p>Vietnam fue la primera guerra televisada en tiempo (casi) real. Sus imágenes destruyeron la credibilidad de la propaganda oficial americana de una manera que ninguna guerra anterior había logrado.</p><p><strong>El acceso sin censura:</strong> A diferencia de las guerras anteriores (donde los periodistas estaban integrados y controlados por el ejército), en Vietnam los corresponsales tuvieron un acceso relativamente libre. Filmaron cadáveres americanos, aldeas incendiadas, ejecuciones en la calle (la célebre foto de Eddie Adams, 1968).</p><p><strong>La brecha de credibilidad:</strong> Los comunicados del Pentágono hablaban de victorias mientras los telediarios mostraban derrotas. La 'brecha de credibilidad' (credibility gap) entre el discurso oficial y la imagen real fue erosionando sistemáticamente la confianza en el gobierno.</p><p><strong>La opinión pública como factor estratégico:</strong> Vietnam demostró que una democracia no puede mantener indefinidamente una guerra impopular. El movimiento antibelicista, alimentado por las imágenes televisivas, fue un factor determinante en la retirada americana.</p><p><strong>El legado:</strong> Todos los ejércitos del mundo aprendieron la lección de Vietnam: el control de la información es parte de la estrategia militar. Las guerras del Golfo (1991, 2003) fueron gestionadas mediáticamente con periodistas 'embebidos' (embedded), integrando a los periodistas en unidades militares para controlar qué imagen del conflicto llegaba al público.</p>`},
+  {n:20,q:"Compara las aportaciones de Reeves, Ogilvy y Bernbach.",a:`<p>Los tres grandes de la publicidad del siglo XX representan tres filosofías distintas sobre cómo comunicar y sobre qué es el consumidor.</p><p><strong>Rosser Reeves (racionalismo):</strong> El consumidor es un ser racional que toma decisiones basadas en beneficios objetivos. La USP (unique selling proposition) identifica el beneficio único del producto y lo repite hasta que el consumidor lo asocia automáticamente. Es publicidad eficaz pero no memorable. Ejemplo: 'Se derriten en tu boca, no en tu mano' (M&Ms).</p><p><strong>David Ogilvy (imagen de marca):</strong> El consumidor no solo compra un producto sino una identidad. Construye marcas con personalidad aspiracional: el Hombre de la Camisa Hathaway, el Baron Schweppes. Su publicidad es elegante, informativa y aspiracional. Refleja los valores de la clase media alta que quería ser.</p><p><strong>Bill Bernbach (revolución creativa):</strong> El consumidor es inteligente y merece ser respetado. La campaña de Volkswagen 'Think Small' (1959) fue lo opuesto al maximalismo americano: modestia, ironía, humor, respeto al consumidor. Bernbach inauguró la era de la creatividad publicitaria como valor en sí mismo.</p><p><strong>El contexto cultural:</strong> Reeves pertenece a los años 50 de conformismo; Ogilvy al ascenso de la clase media aspiracional; Bernbach a la contracultura de los 60. Los tres reflejan su época.</p>`},
+  {n:21,q:"Explica cómo la informática doméstica y los videojuegos prepararon el terreno para Internet.",a:`<p>Internet no llegó a los hogares como una tecnología abstracta: llegó a través de ordenadores personales que los usuarios ya conocían, y los videojuegos fueron decisivos para crear esa familiaridad.</p><p><strong>El ordenador personal:</strong> La 'trinidad de 1977' (Apple II, Commodore PET, TRS-80) llevó el ordenador a los hogares. En los años 80, el IBM PC y los compatibles lo popularizaron en las oficinas. La gente aprendió a teclear, a manejar archivos, a pensar en términos digitales.</p><p><strong>Los videojuegos:</strong> Atari 2600, Nintendo NES, Sega Master System... Los videojuegos crearon una generación que interactuaba de forma natural con pantallas e interfaces digitales. No era solo entretenimiento: era alfabetización digital inconsciente.</p><p><strong>Los BBS y las redes previas:</strong> Antes de la web, existían los Bulletin Board Systems (BBS): usuarios que conectaban por módem a servidores locales para intercambiar mensajes y archivos. Servicios como CompuServe y AOL (años 80-90) enseñaron a millones a comunicarse digitalmente.</p><p><strong>El resultado:</strong> Cuando Berners-Lee inventó la web en 1991 y los primeros navegadores (Mosaic, 1993; Netscape, 1994) la hicieron accesible, encontraron una población con ordenadores en casa, familiarizada con las interfaces digitales y ansiosa por conectarse.</p>`},
+  {n:22,q:"Compara la web 1.0 y la web 2.0.",a:`<p><strong>Web 1.0 (1991-2004 aproximadamente):</strong> 'Solo lectura'. Las páginas las crean organizaciones o individuos con conocimientos técnicos (HTML, servidores). El usuario navega y consume pero no puede publicar directamente. Es una biblioteca digital: puedes leer todo lo que hay, pero no puedes escribir en las paredes.</p><p>El ecosistema mediático: los medios tradicionales dominan porque producen el contenido que los usuarios consumen. La autoridad sigue en los productores profesionales.</p><p><strong>Web 2.0 (desde 2004):</strong> 'Lectura y escritura'. Los blogs (Blogger, 2003), las wikis (Wikipedia, 2001), los vídeos de usuario (YouTube, 2005), las redes sociales (MySpace, 2003; Facebook, 2004) permiten a cualquiera publicar sin saber programar.</p><p>El papel del usuario cambia radicalmente: de consumidor pasivo a prosumidor activo. El 'contenido generado por el usuario' (user generated content) se convierte en la mayor fuente de contenido de Internet.</p><p><strong>Consecuencias para los medios:</strong> Los medios tradicionales pierden el monopolio de la producción de información. Cualquiera puede publicar; el problema ya no es el acceso a la impresión sino la visibilidad en un océano de contenidos. Nacen los intermediarios (Google, Facebook) que controlan esa visibilidad.</p>`},
+  {n:23,q:"Analiza el impacto de los intermediarios mediáticos en la crisis del periodismo.",a:`<p>Google, Facebook/Meta, Twitter/X, Apple News y similares se convirtieron en las puertas de entrada a la información para miles de millones de personas. Este poder de intermediación transformó radicalmente el ecosistema mediático.</p><p><strong>El problema de la distribución:</strong> Un periódico puede publicar la mejor investigación del mundo, pero si Google no la indexa bien o el algoritmo de Facebook no la amplifica, nadie la leerá. Los intermediarios tienen más poder sobre la distribución que los propios creadores de contenido.</p><p><strong>El problema publicitario:</strong> Google y Facebook absorbieron la mayor parte del mercado publicitario digital. Los anunciantes podían dirigirse con precisión quirúrgica a sus audiencias objetivo a través de las plataformas, sin necesidad de pagar a los medios como intermediarios. El mercado publicitario que sostenía el periodismo se desvaneció.</p><p><strong>El problema del modelo de negocio:</strong> Los medios ofrecieron contenido gratis en la web esperando ingresos publicitarios que nunca llegaron a compensar la pérdida de suscripciones en papel y la caída de la publicidad. Las plataformas se quedaron con el dinero de la publicidad usando el contenido periodístico como anzuelo.</p><p><strong>El problema algorítmico:</strong> Los algoritmos de recomendación priorizan el contenido que genera más engagement (clics, reacciones, compartidos). El contenido emocional, provocador o sensacionalista supera algorítmicamente al periodismo matizado y verificado.</p>`},
+  {n:24,q:"Explica las diferentes respuestas de los medios ante la crisis del periodismo digital.",a:`<p>Ante la crisis del modelo publicitario digital, los medios han explorado diversas estrategias con resultados desiguales:</p><p><strong>El paywall (muro de pago):</strong> The New York Times introdujo un muro de pago poroso en 2011 (algunos artículos gratuitos al mes, luego suscripción). Ha funcionado: el NYT supera los 10 millones de suscriptores digitales. Otros medios (Wall Street Journal, Financial Times) también con éxito. Funciona para medios con contenidos de suficiente valor diferencial.</p><p><strong>La membresía voluntaria:</strong> The Guardian ofrece todo el contenido gratuito pero solicita contribuciones voluntarias. Millones de lectores pagan porque sienten que el periodismo de calidad merece sostenerse. Requiere una relación de confianza muy fuerte con la audiencia.</p><p><strong>Las organizaciones sin ánimo de lucro:</strong> The Salt Lake Tribune (2019), ProPublica (periodismo de investigación) o elDiario.es en España combinan membresía, donaciones de fundaciones y socios. Liberan la redacción de la presión comercial pero dependen de la generosidad filantrópica.</p><p><strong>La publicidad nativa:</strong> Contenido patrocinado con aspecto de artículo periodístico. Genera ingresos a corto plazo pero daña la credibilidad a largo plazo. Es el terreno más pantanoso éticamente.</p><p><strong>La diversificación:</strong> Eventos, podcasts, newsletters de pago, licencias de contenido, formación. Los medios buscan múltiples fuentes de ingresos para no depender de una sola.</p>`},
+  {n:25,q:"Describe cómo cambió el consumo televisivo con el vídeo doméstico, Internet y las plataformas VOD.",a:`<p><strong>El vídeo doméstico (años 80):</strong> El VHS (y brevemente el Betamax) liberaron al espectador de la tiranía del horario de programación. Por primera vez, podías ver lo que querías cuando querías. Las videoclub (Blockbuster) crearon una nueva industria. Los estudios de Hollywood, tras intentar prohibirlo judicialmente (Sony vs. Universal, 1984), descubrieron que el mercado doméstico era más lucrativo que las salas.</p><p><strong>Internet y el streaming temprano (años 2000):</strong> YouTube (2005) democratizó la publicación de vídeo. El streaming legal (iTunes desde 2003 para música, luego vídeo) y los servicios de alquiler digital cambiaron los hábitos antes de que existieran plataformas de suscripción.</p><p><strong>Las plataformas VOD (Video on Demand):</strong> Netflix (streaming desde 2007, contenido original desde 2013), Amazon Prime Video, HBO Max, Disney+ y decenas de competidores crearon el modelo de suscripción mensual con catálogo ilimitado. El concepto de 'temporada de TV' perdió sentido: Netflix lanzaba temporadas completas para el binge watching.</p><p><strong>La fragmentación:</strong> El espectador ya no ve lo mismo que su vecino. El consumo televisivo se fragmentó en miles de catálogos y millones de opciones. El 'momento TV compartido' (cuando millones veían el mismo programa el mismo día) prácticamente desapareció.</p>`},
+  {n:26,q:"Analiza el modelo de Netflix y por qué supuso una ruptura con la lógica televisiva tradicional.",a:`<p>Netflix comenzó como servicio de alquiler de DVDs por correo (1997), se convirtió en plataforma de streaming (2007) y luego en productora de contenidos originales (House of Cards, 2013). Cada fase representó una ruptura.</p><p><strong>Ruptura 1 — El catálogo ilimitado:</strong> La televisión tradicional ofrecía lo que decidía el programador en el momento que él elegía. Netflix puso todo el catálogo disponible siempre. El usuario tiene el control total sobre qué ver y cuándo.</p><p><strong>Ruptura 2 — La temporada completa desde el estreno:</strong> La lógica televisiva tradicional funcionaba con el 'gancho semanal': un capítulo cada semana, el espectador espera siete días para el siguiente. Netflix lanzó House of Cards completa (13 episodios) el mismo día. Eliminó la espera y creó el binge watching como hábito de consumo.</p><p><strong>Ruptura 3 — Sin publicidad:</strong> El modelo de suscripción elimina los anuncios. Esto cambia la relación con el usuario (paga por el servicio, no es el producto que se vende a los anunciantes) y permite contenidos que la TV comercial nunca haría (sin presión de ratings ni de anunciantes conservadores).</p><p><strong>Ruptura 4 — Los datos:</strong> Netflix sabe exactamente qué ven sus usuarios, durante cuánto tiempo, qué momentos generan abandono. Esta información permite tomar decisiones de producción basadas en datos, no en intuiciones de programadores.</p>`},
+  {n:27,q:"Explica cómo la espectacularización del cine en el siglo XXI se relaciona con el blockbuster y la competencia con otros medios.",a:`<p>El cine del siglo XXI hereda el modelo blockbuster inaugurado por Spielberg con Tiburón (1975) y perfeccionado por Lucas con Star Wars (1977), pero lo lleva al extremo ante una competencia sin precedentes.</p><p><strong>El blockbuster como lógica industrial:</strong> La producción se concentra en tentpoles (películas evento con presupuestos de 150-300 millones de dólares) que generan ingresos no solo en taquilla sino en merchandising, parques temáticos, videojuegos, streaming y series derivadas. El universo Marvel (MCU) es el modelo perfecto: cada película es un evento mediático y un capítulo de una saga mayor.</p><p><strong>La competencia con las plataformas:</strong> Netflix, HBO Max y Disney+ ofrecen contenidos de altísima calidad a domicilio. ¿Por qué salir de casa? El cine solo puede competir ofreciendo algo que la pantalla doméstica no puede replicar: la experiencia colectiva, la sala Dolby Atmos, la pantalla de 20 metros, los efectos visuales diseñados para el IMAX.</p><p><strong>El riesgo de la fórmula:</strong> La concentración en blockbusters ha reducido el espacio para el cine de autor y el drama adulto, que han migrado masivamente a las plataformas. El cine de sala tiende a ser espectáculo puro; el cine 'de texto' vive en streaming.</p>`},
+  {n:28,q:"Compara el cine europeo de posguerra (neorrealismo, nouvelle vague) con el nuevo Hollywood y el blockbuster.",a:`<p><strong>Neorrealismo italiano (1945-1952):</strong> Reacción al cine fascista y al espectáculo americano. Rodado en exteriores con luz natural, actores no profesionales y presupuestos mínimos. Temas: la pobreza, la guerra, la resistencia. Rossellini (Roma, ciudad abierta), De Sica (Ladrón de bicicletas), Visconti. El cine como documento social, no como evasión.</p><p><strong>Nouvelle Vague francesa (1959-1968):</strong> Cinéfilos del Cahiers du Cinéma (Godard, Truffaut, Chabrol) convirtidos en directores. Rompieron las convenciones narrativas (jump cuts, cámara al hombro, narración en primera persona), reivindicaron al director como 'autor' y exploraron temas existenciales urbanos. À bout de souffle (1960) es el manifiesto.</p><p><strong>Nuevo Hollywood (1967-1980):</strong> Absorbe las influencias europeas (muchos directores americanos de la época estudiaron a Godard y Fellini) pero dentro del sistema de estudios. Coppola, Scorsese, Kubrick, Altman. Mayor libertad temática (sexo, violencia, ambigüedad moral) tras la caída del código Hays (1968). El padrino, Chinatown, Taxi Driver.</p><p><strong>El blockbuster:</strong> Con Tiburón y Star Wars vuelve el cine de entretenimiento puro, pero con el lenguaje cinematográfico sofisticado del Nuevo Hollywood. El resultado es el cine dominante actual: espectáculo formal con valores de producción altísimos, pero con la profundidad temática reducida al mínimo necesario para justify el precio de la entrada.</p>`},
+  {n:29,q:"Analiza cómo la radio se reinventó tras la llegada de la televisión.",a:`<p>La televisión arrebató a la radio la audiencia familiar del prime time y los grandes anunciantes. La radio respondió con una transformación radical que la convirtió en un medio diferente, no en un medio menor.</p><p><strong>La transistorización:</strong> El transistor (Bell Labs, 1947) hizo los radios portátiles, baratos y personales. En los años 50, los adolescentes americanos compraron millones de transistores baratos que podían llevar al parque, a la playa o esconder en su cuarto. La radio dejó de ser el televisor de la familia reunida en el salón y se convirtió en el compañero personal del individuo.</p><p><strong>La FM y el rock:</strong> La frecuencia modulada ofrecía calidad de sonido muy superior a la AM. Perfecta para música. El rock and roll, el jazz y luego todos los géneros musicales encontraron en la FM su escaparate natural. La radio musical para jóvenes era algo que la televisión generalista no podía ofrecer.</p><p><strong>La especialización:</strong> La televisión se quedó con la audiencia generalista. La radio respondió especializándose por géneros y públicos: radio de noticias 24 horas (all-news), radio clásica, radio de jazz, radio deportiva, radio conservadora de comentario político (Rush Limbaugh). Cada emisora apuntaba a un nicho específico.</p><p><strong>El morning show:</strong> Los datos de audiencia revelaron que el pico máximo era en el trayecto al trabajo (7-9 AM). El 'programa despertador' con música, noticias breves, tiempo y humor se convirtió en el slot más valioso de la radio.</p>`},
+  {n:30,q:"Explica cómo la crisis de reputación del periodismo en el siglo XXI se relaciona con errores de cobertura, cambios tecnológicos y transformaciones culturales.",a:`<p>La crisis de reputación del periodismo en el siglo XXI tiene tres dimensiones interrelacionadas:</p><p><strong>Los errores propios:</strong> El periodismo institucional cometió errores graves que erosionaron su credibilidad. La cobertura de las armas de destrucción masiva en Iraq (2002-2003), donde grandes medios como el NYT publicaron información falsa del gobierno sin verificar suficientemente. El caso Jayson Blair (NYT, 2003), periodista que inventaba noticias y entrevistas durante años. El News of the World (2011), cerrado por hackear teléfonos de víctimas de crímenes. Las teorías conspirativas de El Mundo sobre el 11-M. Cada escándalo reforzó la desconfianza.</p><p><strong>Los cambios tecnológicos:</strong> Internet democratizó la publicación, pero también la desinformación. Cualquiera puede publicar; el usuario tiene dificultades para distinguir una noticia verificada de una fake news. Los algoritmos de redes sociales amplifican el contenido emocional (incluyendo el falso) sobre el verificado pero aburrido. La velocidad digital penaliza la verificación.</p><p><strong>Las transformaciones culturales:</strong> La polarización política creciente creó un ecosistema donde los medios son percibidos como instrumentos de un bando u otro. La confianza en las instituciones en general (gobierno, ciencia, medios) ha caído en las democracias occidentales. El periodismo no es percibido como árbitro neutral sino como actor político más, lo que hace que la mitad del público lo perciba como enemigo a priori.</p>`}
+];
+
+let currentTema = 1;
+let openCards = {};
+let answeredQs = {};
+let userSelections = {};
+let examQuestions = [];
+
+function renderNav(){
+  const nav = document.getElementById('nav');
+  nav.innerHTML = '';
+  
+  data.forEach(t => {
+    const btn = document.createElement('button');
+    btn.className = 'nav-btn' + (t.id === currentTema ? ' active' : '');
+    btn.textContent = 'Tema ' + t.id;
+    btn.onclick = () => { currentTema = t.id; openCards = {}; renderNav(); renderContent(); };
+    nav.appendChild(btn);
+  });
+  
+  const devBtn = document.createElement('button');
+  devBtn.className = 'nav-btn' + (currentTema === 99 ? ' active' : '');
+  devBtn.textContent = 'Desarrollo';
+  devBtn.onclick = () => { currentTema = 99; openCards = {}; renderNav(); renderContent(); };
+  nav.appendChild(devBtn);
+
+  const examBtn = document.createElement('button');
+  examBtn.className = 'nav-btn special' + (currentTema === 'exam' ? ' active' : '');
+  examBtn.textContent = 'Simulacro Examen';
+  examBtn.onclick = () => { 
+    if(currentTema !== 'exam'){
+      currentTema = 'exam';
+      if(examQuestions.length === 0) generateExam();
+      openCards = {}; 
+      renderNav(); 
+      renderContent(); 
+    }
+  };
+  nav.appendChild(examBtn);
+}
+
+function generateExam() {
+  let allQs = [];
+  data.forEach(t => {
+    t.qs.forEach(q => {
+      // Guardamos la info de la pregunta y su tema original para mostrarlo como "tag"
+      allQs.push({ ...q, sourceTemaId: t.id });
+    });
+  });
+  // Barajar el array usando un método sencillo de ordenación aleatoria
+  allQs.sort(() => Math.random() - 0.5);
+  examQuestions = allQs.slice(0, 10);
+  
+  // Reseteamos el estado de las preguntas del examen (para que esten sin contestar)
+  examQuestions.forEach((_, i) => {
+    delete answeredQs['e' + i];
+    delete userSelections['e' + i];
+  });
+}
+
+window.forceNewExam = function() {
+  generateExam();
+  renderContent();
+};
+
+function toggleDevCard(id){
+  openCards[id] = !openCards[id];
+  const body = document.getElementById('body-' + id);
+  const icon = document.getElementById('icon-' + id);
+  if(body){ 
+    if(openCards[id]) {
+      body.classList.add('open');
+      icon.classList.add('open');
+    } else {
+      body.classList.remove('open');
+      icon.classList.remove('open');
+    }
+  }
+}
+
+// Logic for Interactive Quiz
+window.handleOptionClick = function(qId, selectedIdx, correctIdxsString, isMulti) {
+  if(answeredQs[qId]) return;
+
+  const correctIdxs = JSON.parse(correctIdxsString);
+  userSelections[qId] = userSelections[qId] || [];
+
+  if (!isMulti) {
+    // Single choice selection -> Auto evaluate
+    userSelections[qId] = [selectedIdx];
+    answeredQs[qId] = true;
+    evaluateQuestion(qId, correctIdxs);
+  } else {
+    // Multi choice selection -> Toggle style & show Verify button
+    const selIndex = userSelections[qId].indexOf(selectedIdx);
+    const container = document.getElementById('opts-' + qId);
+    const btn = container.querySelectorAll('.opt-btn')[selectedIdx];
+
+    if (selIndex > -1) {
+      userSelections[qId].splice(selIndex, 1);
+      btn.classList.remove('selected');
+    } else {
+      userSelections[qId].push(selectedIdx);
+      btn.classList.add('selected');
+    }
+
+    const verifyBtn = document.getElementById('verify-' + qId);
+    if (userSelections[qId].length > 0) {
+      verifyBtn.style.display = 'inline-block';
+    } else {
+      verifyBtn.style.display = 'none';
+    }
+  }
+};
+
+window.verifyMulti = function(qId, correctIdxsString) {
+  if(answeredQs[qId]) return;
+  answeredQs[qId] = true;
+  const correctIdxs = JSON.parse(correctIdxsString);
+  evaluateQuestion(qId, correctIdxs);
+};
+
+function evaluateQuestion(qId, correctIdxs) {
+  const container = document.getElementById('opts-' + qId);
+  const buttons = container.querySelectorAll('.opt-btn');
+  const selections = userSelections[qId] || [];
+
+  buttons.forEach((btn, idx) => {
+    btn.disabled = true;
+    btn.classList.remove('selected');
+
+    if (correctIdxs.includes(idx)) {
+      btn.classList.add('correct');
+      btn.innerHTML = '✓ ' + btn.innerHTML.replace(/^[✓✗] /, '');
+    } else if (selections.includes(idx)) {
+      btn.classList.add('wrong');
+      btn.innerHTML = '✗ ' + btn.innerHTML.replace(/^[✓✗] /, '');
+    }
+  });
+
+  const verifyBtn = document.getElementById('verify-' + qId);
+  if (verifyBtn) verifyBtn.style.display = 'none';
+  
+  document.getElementById('exp-' + qId).style.display = 'block';
+}
+
+function renderContent(){
+  const content = document.getElementById('content');
+  content.innerHTML = '';
+  
+  // Render Exam Section
+  if(currentTema === 'exam'){
+    const headHTML = `
+      <div class="exam-header">
+        <div class="tema-title" style="margin-bottom:0;">Simulacro de Examen</div>
+        <button class="nav-btn active" style="margin-bottom:0;" onclick="forceNewExam()">↻ Generar Nuevo Examen</button>
+      </div>
+      <div class="tema-sub">10 preguntas obtenidas de forma aleatoria de todos los temas.</div>
+      <div class="section-label">Preguntas tipo test interactivo</div>
+    `;
+    content.insertAdjacentHTML('beforeend', headHTML);
+
+    examQuestions.forEach((q, i) => {
+      const id = 'e' + i; // isolated ID to not interfere with standard topics
+      const correctIdxs = Array.isArray(q.ans) ? q.ans : [q.ans];
+      const isMulti = correctIdxs.length > 1;
+      const isAnswered = answeredQs[id] === true;
+      const selections = userSelections[id] || [];
+      
+      const card = document.createElement('div');
+      card.className = 'q-card';
+      card.id = 'card-' + id;
+      
+      let multiHint = isMulti ? `<span class="multi-hint">(Selecciona ${correctIdxs.length} opciones)</span>` : '';
+      let temaTag = `<span class="tema-tag">Tema ${q.sourceTemaId}</span>`;
+      
+      // Generate Options
+      let optsHtml = `<div class="options-container" id="opts-${id}">`;
+      q.opts.forEach((o, oi) => {
+        const correctString = JSON.stringify(correctIdxs);
+        let btnClass = 'opt-btn';
+        let btnText = o;
+        let disabledAttr = '';
+        
+        if (isAnswered) {
+          disabledAttr = 'disabled';
+          if (correctIdxs.includes(oi)) {
+            btnClass += ' correct';
+            btnText = '✓ ' + o;
+          } else if (selections.includes(oi)) {
+            btnClass += ' wrong';
+            btnText = '✗ ' + o;
+          }
+        } else if (selections.includes(oi)) {
+          btnClass += ' selected';
+        }
+        
+        optsHtml += `<button class="${btnClass}" ${disabledAttr} onclick='handleOptionClick("${id}", ${oi}, "${correctString}", ${isMulti})'>${btnText}</button>`;
+      });
+      optsHtml += `</div>`;
+      
+      let verifyHtml = '';
+      if (isMulti) {
+        const showVerify = !isAnswered && selections.length > 0;
+        verifyHtml = `<button class="verify-btn" id="verify-${id}" onclick='verifyMulti("${id}", "${JSON.stringify(correctIdxs)}")' style="display: ${showVerify ? 'inline-block' : 'none'};">Comprobar</button>`;
+      }
+
+      // Assembling Question Block
+      card.innerHTML = `
+        <div class="q-header">
+          <span class="q-num">${i+1}.</span>
+          <span class="q-text">${q.q} ${multiHint} ${temaTag}</span>
+        </div>
+        ${optsHtml}
+        ${verifyHtml}
+        <div class="explain" id="exp-${id}" style="display: ${isAnswered ? 'block' : 'none'}">${q.exp}</div>
+      `;
+      
+      content.appendChild(card);
+    });
+    return;
+  }
+
+  // Render Development Questions Section
+  if(currentTema === 99){
+    const headHTML = `<div class="tema-title">Preguntas de desarrollo</div><div class="tema-sub">Haz clic en cada pregunta para ver la respuesta razonada</div>`;
+    content.insertAdjacentHTML('beforeend', headHTML);
+    
+    devQuestions.forEach(dq => {
+      const id = 'dev-' + dq.n;
+      const isOpen = openCards[id];
+      const card = document.createElement('div');
+      card.className = 'dev-card';
+      card.innerHTML = `
+        <div class="dev-q" onclick="toggleDevCard('${id}')">
+          <span class="q-num">${dq.n}.</span>
+          <span style="flex:1">${dq.q}</span>
+          <span class="q-toggle${isOpen?' open':''}" id="icon-${id}">▾</span>
+        </div>
+        <div class="dev-body${isOpen?' open':''}" id="body-${id}">
+          ${dq.a}
+        </div>
+      `;
+      content.appendChild(card);
+    });
+    return;
+  }
+  
+  // Render Regular Test Questions Section
+  const tema = data.find(t => t.id === currentTema);
+  if(!tema) return;
+  
+  const headHTML = `
+    <div class="tema-title">Tema ${tema.id} — ${tema.title}</div>
+    <div class="tema-sub">${tema.sub || 'Selecciona la opción correcta para cada pregunta y descubre la explicación histórica.'}</div>
+    <div class="section-label">Preguntas tipo test interactivo</div>
+  `;
+  content.insertAdjacentHTML('beforeend', headHTML);
+  
+  tema.qs.forEach((q, i) => {
+    const id = 't' + tema.id + 'q' + i;
+    const correctIdxs = Array.isArray(q.ans) ? q.ans : [q.ans];
+    const isMulti = correctIdxs.length > 1;
+    const isAnswered = answeredQs[id] === true;
+    const selections = userSelections[id] || [];
+    
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.id = 'card-' + id;
+    
+    let multiHint = isMulti ? `<span class="multi-hint">(Selecciona ${correctIdxs.length} opciones)</span>` : '';
+    
+    // Generate Options
+    let optsHtml = `<div class="options-container" id="opts-${id}">`;
+    q.opts.forEach((o, oi) => {
+      const correctString = JSON.stringify(correctIdxs);
+      let btnClass = 'opt-btn';
+      let btnText = o;
+      let disabledAttr = '';
+      
+      if (isAnswered) {
+        disabledAttr = 'disabled';
+        if (correctIdxs.includes(oi)) {
+          btnClass += ' correct';
+          btnText = '✓ ' + o;
+        } else if (selections.includes(oi)) {
+          btnClass += ' wrong';
+          btnText = '✗ ' + o;
+        }
+      } else if (selections.includes(oi)) {
+        btnClass += ' selected';
+      }
+      
+      optsHtml += `<button class="${btnClass}" ${disabledAttr} onclick='handleOptionClick("${id}", ${oi}, "${correctString}", ${isMulti})'>${btnText}</button>`;
+    });
+    optsHtml += `</div>`;
+    
+    let verifyHtml = '';
+    if (isMulti) {
+      const showVerify = !isAnswered && selections.length > 0;
+      verifyHtml = `<button class="verify-btn" id="verify-${id}" onclick='verifyMulti("${id}", "${JSON.stringify(correctIdxs)}")' style="display: ${showVerify ? 'inline-block' : 'none'};">Comprobar</button>`;
+    }
+
+    // Assembling Question Block
+    card.innerHTML = `
+      <div class="q-header">
+        <span class="q-num">${i+1}.</span>
+        <span class="q-text">${q.q} ${multiHint}</span>
+      </div>
+      ${optsHtml}
+      ${verifyHtml}
+      <div class="explain" id="exp-${id}" style="display: ${isAnswered ? 'block' : 'none'}">${q.exp}</div>
+    `;
+    
+    content.appendChild(card);
+  });
+}
+
+renderNav();
+renderContent();
+</script>
+
+</body>
+</html>
